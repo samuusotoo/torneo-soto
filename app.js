@@ -18,9 +18,27 @@ function setEditable(){
 function adminToggle(){
   if(!ONLINE||!AUTH) return;
   if(isAdmin){ AUTH.signOut(); return; }
-  const email=prompt("Email de administrador:"); if(!email)return;
-  const pass=prompt("Contraseña:"); if(!pass)return;
-  AUTH.signInWithEmailAndPassword(email.trim(),pass).catch(e=>alert("No se pudo iniciar sesión: "+(e&&e.message?e.message:e)));
+  openLogin();
+}
+function openLogin(){
+  const m=document.getElementById("loginModal"); if(!m)return;
+  document.getElementById("login-email").value="";
+  document.getElementById("login-pass").value="";
+  document.getElementById("login-error").style.display="none";
+  m.style.display="flex";
+  setTimeout(()=>document.getElementById("login-email").focus(),50);
+}
+function closeLogin(){
+  const m=document.getElementById("loginModal"); if(m)m.style.display="none";
+}
+function submitLogin(){
+  const email=document.getElementById("login-email").value.trim();
+  const pass=document.getElementById("login-pass").value;
+  const err=document.getElementById("login-error");
+  if(!email||!pass){ err.textContent="Rellena email y contraseña."; err.style.display="block"; return; }
+  AUTH.signInWithEmailAndPassword(email,pass)
+    .then(()=>closeLogin())
+    .catch(e=>{ err.textContent="Credenciales incorrectas."; err.style.display="block"; });
 }
 
 function localLoad(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}

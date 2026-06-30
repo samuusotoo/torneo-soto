@@ -101,6 +101,18 @@
   </div>
 </div>
 
+<div id="loginModal" class="modal" style="display:none" onclick="if(event.target===this)closeLogin()">
+  <div class="modal-card">
+    <div class="modal-title">🔒 Administrador</div>
+    <p class="modal-sub">Introduce tus credenciales para entrar en modo edición.</p>
+    <div id="login-error" class="login-error" style="display:none"></div>
+    <input id="login-email" class="login-input" type="email" placeholder="Email" autocomplete="username">
+    <input id="login-pass" class="login-input" type="password" placeholder="Contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitLogin()">
+    <button class="btn modal-btn" onclick="submitLogin()">Entrar</button>
+    <button class="btn" onclick="closeLogin()" style="width:100%;margin-top:8px">Cancelar</button>
+  </div>
+</div>
+
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>

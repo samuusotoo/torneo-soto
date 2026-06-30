@@ -152,3 +152,6 @@ tr+tr td{border-top:1px solid var(--line)}
 .po2 .porole{color:#cdd3da}.po3 .porole{color:#e7a972}
 .setup{background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;margin-bottom:14px}
 .setup b{color:#9a3412}
+.login-input{width:100%;padding:11px 12px;border:2px solid var(--line);border-radius:10px;font-size:15px;color:var(--ink);background:#fbfdfc;margin-bottom:10px;box-sizing:border-box}
+.login-input:focus{outline:none;border-color:var(--accentA)}
+.login-error{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;border-radius:10px;padding:9px 12px;font-size:13px;margin-bottom:10px}
