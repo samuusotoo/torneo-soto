@@ -117,8 +117,7 @@ function renderStandings(g){
   tb.innerHTML=standings(g).map((t,idx)=>{
     const qc=idx<QUALIFY[g]?"q":"";const dg=(t.dg>0?"+":"")+t.dg;
     const mine=(GROUPS[g][t.i]===MYTEAM)?" myteam":"";
-    return `<tr class="qual ${qc}${mine}"><td class="pos">${idx+1}</td><td class="team">${GROUPS[g][t.i]}</td>`+
-      `<td>${t.pj}</td><td>${t.g}</td><td>${t.e}</td><td>${t.p}</td><td>${t.gf}</td><td>${t.gc}</td><td>${dg}</td><td class="pts">${t.pts}</td></tr>`;
+    return `<tr class="qual ${qc}${mine}"><td class="pos">${idx+1}</td><td class="team">${GROUPS[g][t.i]}</td><td>${t.pj}</td><td>${t.g}</td><td>${t.e}</td><td>${t.p}</td><td>${t.gf}</td><td>${t.gc}</td><td>${dg}</td><td class="pts">${t.pts}</td></tr>`;
   }).join("");
 }
 function renderAllStandings(){Object.keys(GROUPS).forEach(renderStandings);}
@@ -175,26 +174,24 @@ function renderKO(){
   const root=document.getElementById("ko-list");if(!root)return;
   const ed=canEdit();
   const rounds=[["octavos","Octavos de final"],["cuartos","Cuartos de final"],["semis","Semifinales"],["finales","Final y 3.º/4.º puesto"]];
-  let html="";
-  rounds.forEach(([key,label])=>{
-    html+=`<div class="sec-title">${label}</div><div class="card">`;
-    BRACKET[key].forEach(m=>{
+  root.innerHTML=rounds.map(([key,label])=>{
+    const matches=BRACKET[key].map(m=>{
       const A=slotTeam(m.a),B=slotTeam(m.b),res=koResult(m.id),r=KO[m.id]||{};
       const wa=res.decided&&res.winner==="a",wb=res.decided&&res.winner==="b";
       const filled=r.gh!==""&&r.ga!==""&&r.gh!=null&&r.ga!=null;
       const tie=filled&&(+r.gh===+r.ga);
       const dis=ed?"":"disabled";
-      const head=(m.title?m.title:m.id)+" · "+m.day+" · "+m.hm;
-      html+=`<div class="komatch"><div class="kohead">${head}</div>`+
-        `<div class="korow ${wa?'win':''}"><span class="koname">${A.name}</span><input type="number" min="0" inputmode="numeric" ${dis} value="${r.gh!=null?r.gh:''}" onchange="setKO('${m.id}','gh',this.value)"></div>`+
-        `<div class="korow ${wb?'win':''}"><span class="koname">${B.name}</span><input type="number" min="0" inputmode="numeric" ${dis} value="${r.ga!=null?r.ga:''}" onchange="setKO('${m.id}','ga',this.value)"></div>`+
-        (tie?`<div class="kopen"><span>Penaltis</span><input type="number" min="0" inputmode="numeric" ${dis} value="${r.ph!=null?r.ph:''}" onchange="setKO('${m.id}','ph',this.value)"><span>-</span><input type="number" min="0" inputmode="numeric" ${dis} value="${r.pa!=null?r.pa:''}" onchange="setKO('${m.id}','pa',this.value)"></div>`:``)+
-        (tie&&!res.decided?`<div class="koundec">Empate — define los penaltis</div>`:``)+
-      `</div>`;
-    });
-    html+=`</div>`;
-  });
-  root.innerHTML=html;
+      const head=`${m.title||m.id} · ${m.day} · ${m.hm}`;
+      return `<div class="komatch">
+        <div class="kohead">${head}</div>
+        <div class="korow ${wa?'win':''}"><span class="koname">${A.name}</span><input type="number" min="0" inputmode="numeric" ${dis} value="${r.gh!=null?r.gh:''}" onchange="setKO('${m.id}','gh',this.value)"></div>
+        <div class="korow ${wb?'win':''}"><span class="koname">${B.name}</span><input type="number" min="0" inputmode="numeric" ${dis} value="${r.ga!=null?r.ga:''}" onchange="setKO('${m.id}','ga',this.value)"></div>
+        ${tie?`<div class="kopen"><span>Penaltis</span><input type="number" min="0" inputmode="numeric" ${dis} value="${r.ph!=null?r.ph:''}" onchange="setKO('${m.id}','ph',this.value)"><span>-</span><input type="number" min="0" inputmode="numeric" ${dis} value="${r.pa!=null?r.pa:''}" onchange="setKO('${m.id}','pa',this.value)"></div>`:''}
+        ${tie&&!res.decided?'<div class="koundec">Empate — define los penaltis</div>':''}
+      </div>`;
+    }).join('');
+    return `<div class="sec-title">${label}</div><div class="card">${matches}</div>`;
+  }).join('');
   renderBracket();
   renderChampion();
 }
@@ -207,13 +204,13 @@ function renderChampion(){
   const sub=slotTeam(fin.winner==="a"?F.b:F.a).name;
   const t=koResult("T34"); let third="Por decidir";
   if(t.decided){ const T=matchById("T34"); third=slotTeam(t.winner==="a"?T.a:T.b).name; }
-  host.innerHTML=
-    '<div class="champ-title">\uD83C\uDFC6 \u00a1Campe\u00f3n del III Torneo Soto del Barco!</div>'+
-    '<div class="podium">'+
-      '<div class="po po2"><div class="medal">\uD83E\uDD48</div><div class="porole">Subcampe\u00f3n</div><div class="poname">'+sub+'</div><div class="block">2</div></div>'+
-      '<div class="po po1"><div class="crown">\uD83D\uDC51</div><div class="medal">\uD83E\uDD47</div><div class="porole">Campe\u00f3n</div><div class="poname">'+champ+'</div><div class="block">1</div></div>'+
-      '<div class="po po3"><div class="medal">\uD83E\uDD49</div><div class="porole">3.\u00ba puesto</div><div class="poname">'+third+'</div><div class="block">3</div></div>'+
-    '</div>';
+  host.innerHTML=`
+    <div class="champ-title">🏆 ¡Campeón del III Torneo Soto del Barco!</div>
+    <div class="podium">
+      <div class="po po2"><div class="medal">🥈</div><div class="porole">Subcampeón</div><div class="poname">${sub}</div><div class="block">2</div></div>
+      <div class="po po1"><div class="crown">👑</div><div class="medal">🥇</div><div class="porole">Campeón</div><div class="poname">${champ}</div><div class="block">1</div></div>
+      <div class="po po3"><div class="medal">🥉</div><div class="porole">3.º puesto</div><div class="poname">${third}</div><div class="block">3</div></div>
+    </div>`;
   host.style.display="block";
 }
 function allPlayedMatches(){
@@ -254,20 +251,22 @@ function renderStats(){
   const avg=(totalGoals/M.length).toFixed(2);
   const lg=less[0];
   function fm(m){return m.a+' '+m.ga+'-'+m.gb+' '+m.b;}
-  let html='';
-  html+='<div class="stat-hero"><div class="lbl">🛡️ Equipo menos goleado</div><div class="team">'+lg.n+'</div><div class="sub">'+lg.gc+' goles encajados en '+lg.pj+' partidos · media '+lg.avg.toFixed(2)+' por partido</div></div>';
-  html+='<div class="stat-rank">';
-  less.slice(0,3).forEach(function(t,i){ html+='<div class="rt"><span>'+(i+1)+'. '+t.n+'</span><span><b>'+t.gc+'</b> encajados · '+t.avg.toFixed(2)+'/p</span></div>'; });
-  html+='</div>';
-  html+='<div class="stat-grid">';
-  html+='<div class="stile"><div class="k">⚽ Goles totales</div><div class="v">'+totalGoals+'</div></div>';
-  html+='<div class="stile"><div class="k">📊 Media goles/partido</div><div class="v">'+avg+'</div></div>';
-  html+='<div class="stile"><div class="k">🔥 Equipo más goleador</div><div class="v">'+scorer.n+' ('+scorer.gf+')</div></div>';
-  html+='<div class="stile"><div class="k">🧤 Más porterías a 0</div><div class="v">'+cs.n+' ('+cs.cs+')</div></div>';
-  html+='<div class="stile"><div class="k">🥅 Partido + goles</div><div class="v">'+fm(most)+' ('+(most.ga+most.gb)+')</div></div>';
-  html+='<div class="stile"><div class="k">🏟️ Partidos jugados</div><div class="v">'+M.length+'</div></div>';
-  html+='</div>';
-  body.innerHTML=html;
+  const ranking=less.slice(0,3).map(function(t,i){ return `<div class="rt"><span>${i+1}. ${t.n}</span><span><b>${t.gc}</b> encajados · ${t.avg.toFixed(2)}/p</span></div>`; }).join('');
+  body.innerHTML=`
+    <div class="stat-hero">
+      <div class="lbl">🛡️ Equipo menos goleado</div>
+      <div class="team">${lg.n}</div>
+      <div class="sub">${lg.gc} goles encajados en ${lg.pj} partidos · media ${lg.avg.toFixed(2)} por partido</div>
+    </div>
+    <div class="stat-rank">${ranking}</div>
+    <div class="stat-grid">
+      <div class="stile"><div class="k">⚽ Goles totales</div><div class="v">${totalGoals}</div></div>
+      <div class="stile"><div class="k">📊 Media goles/partido</div><div class="v">${avg}</div></div>
+      <div class="stile"><div class="k">🔥 Equipo más goleador</div><div class="v">${scorer.n} (${scorer.gf})</div></div>
+      <div class="stile"><div class="k">🧤 Más porterías a 0</div><div class="v">${cs.n} (${cs.cs})</div></div>
+      <div class="stile"><div class="k">🥅 Partido + goles</div><div class="v">${fm(most)} (${most.ga+most.gb})</div></div>
+      <div class="stile"><div class="k">🏟️ Partidos jugados</div><div class="v">${M.length}</div></div>
+    </div>`;
 }
 function allTeamsList(){ let a=[]; Object.keys(GROUPS).forEach(function(g){GROUPS[g].forEach(function(t){a.push(t);});}); return a; }
 function groupOf(name){ for(const g in GROUPS){ if(GROUPS[g].indexOf(name)>=0) return g; } return null; }
@@ -320,22 +319,22 @@ function renderMyTeam(){
   const st=standings(g); const pos=st.findIndex(function(t){return GROUPS[g][t.i]===MYTEAM;})+1; const me=st[pos-1];
   const ms=myMatches();
   const next=ms.filter(function(m){return !m.res;}).sort(function(a,b){return (a.d||"")<(b.d||"")?-1:1;})[0];
-  let html='';
-  html+='<div class="mt-hero"><div class="nm">'+MYTEAM+'</div><div class="gp">Grupo '+g+' · '+(groupReady(g)?(pos+'.º clasificado'):(pos+'.º (provisional)'))+' · '+me.pts+' pts</div></div>';
-  html+='<div class="mt-row"><b>Estado:</b> '+myTeamStatus(g)+'</div>';
-  if(next){ html+='<div class="mt-row"><b>Próximo partido:</b> '+next.phase+' · '+(next.when||'fecha por confirmar')+' · vs '+next.opp+'</div>'; }
-  html+='<div class="mt-sub">Sus partidos</div>';
-  if(ms.length===0){ html+='<div class="mt-empty">Aún no hay partidos.</div>'; }
-  ms.forEach(function(m){
+  const posLabel=groupReady(g)?`${pos}.º clasificado`:`${pos}.º (provisional)`;
+  const matchRows=ms.map(function(m){
     const cls=m.res?(m.mine==="win"?"win":(m.mine==="loss"?"loss":"draw")):"";
-    html+='<div class="mt-match '+cls+'"><span class="ph'+(m.ko?' ph-ko':'')+'">'+m.phase+'</span><span class="op">'+(m.when?m.when+' · ':'')+'vs '+m.opp+'</span><span class="rs">'+(m.res?m.res:'—')+'</span></div>';
-  });
-  body.innerHTML=html;
+    return `<div class="mt-match ${cls}"><span class="ph${m.ko?' ph-ko':''}">${m.phase}</span><span class="op">${m.when?m.when+' · ':''} vs ${m.opp}</span><span class="rs">${m.res||'—'}</span></div>`;
+  }).join('');
+  body.innerHTML=`
+    <div class="mt-hero"><div class="nm">${MYTEAM}</div><div class="gp">Grupo ${g} · ${posLabel} · ${me.pts} pts</div></div>
+    <div class="mt-row"><b>Estado:</b> ${myTeamStatus(g)}</div>
+    ${next?`<div class="mt-row"><b>Próximo partido:</b> ${next.phase} · ${next.when||'fecha por confirmar'} · vs ${next.opp}</div>`:''}
+    <div class="mt-sub">Sus partidos</div>
+    ${ms.length===0?'<div class="mt-empty">Aún no hay partidos.</div>':matchRows}`;
 }
 function openMyTeam(){
   closeMenu();
   const sel=document.getElementById("mt-select");
-  if(sel){ let opts='<option value="">— Elige tu equipo —</option>'; allTeamsList().forEach(function(t){ opts+='<option value="'+t+'"'+(t===MYTEAM?' selected':'')+'>'+t+'</option>'; }); sel.innerHTML=opts; }
+  if(sel){ sel.innerHTML='<option value="">— Elige tu equipo —</option>'+allTeamsList().map(t=>`<option value="${t}"${t===MYTEAM?' selected':''}>${t}</option>`).join(''); }
   renderMyTeam();
   var m=document.getElementById("myteamModal"); if(m)m.style.display="flex";
 }
@@ -346,8 +345,7 @@ function openPalmares(){closeMenu();renderPalmares();var m=document.getElementBy
 function closePalmares(){var m=document.getElementById("palmaresModal");if(m)m.style.display="none";}
 function renderPalmares(){
   const list=document.getElementById("palmares-list"); if(!list) return;
-  let html="";
-  PALMARES.forEach(function(e){
+  list.innerHTML=PALMARES.map(function(e){
     let champ=e.champ||"",sub=e.sub||"",third=e.third||"",fourth=e.fourth||"";
     if(e.live){
       const fin=koResult("FIN");
@@ -356,24 +354,23 @@ function renderPalmares(){
       if(t.decided){ const T=matchById("T34"); third=slotTeam(t.winner==="a"?T.a:T.b).name; fourth=slotTeam(t.winner==="a"?T.b:T.a).name; }
     }
     const tag=e.live&&!champ?' <span class="pend">(en juego)</span>':'';
-    html+='<div class="ped"><div class="ped-h"><span>'+e.ed+'.ª edición'+tag+'</span><span class="yr">'+e.year+'</span></div>';
+    let content;
     if(champ){
-      html+='<div class="prow win"><span class="m">🥇</span><span class="nm">'+champ+'</span></div>';
-      html+='<div class="prow"><span class="m">🥈</span><span class="nm">'+(sub||"—")+'</span></div>';
-      html+='<div class="prow"><span class="m">🥉</span><span class="nm">'+(third||"—")+'</span></div>';
-      if(fourth) html+='<div class="prow"><span class="m m4">4º</span><span class="nm">'+fourth+'</span></div>';
-      const aw=[["⭐","Mejor jugador",e.mvp],["🛡️","Equipo menos goleado",e.lessGoals],["👏","Mejor espectador",e.spectator]];
-      let extra="";
-      aw.forEach(function(a){ extra+='<div class="pextra">'+a[0]+' '+a[1]+': <b>'+(a[2]?a[2]:"Por confirmar")+'</b></div>'; });
-      html+='<div class="pdiv"></div>'+extra;
+      const awards=[["⭐","Mejor jugador",e.mvp],["🛡️","Equipo menos goleado",e.lessGoals],["👏","Mejor espectador",e.spectator]];
+      content=`
+        <div class="prow win"><span class="m">🥇</span><span class="nm">${champ}</span></div>
+        <div class="prow"><span class="m">🥈</span><span class="nm">${sub||"—"}</span></div>
+        <div class="prow"><span class="m">🥉</span><span class="nm">${third||"—"}</span></div>
+        ${fourth?`<div class="prow"><span class="m m4">4º</span><span class="nm">${fourth}</span></div>`:''}
+        <div class="pdiv"></div>
+        ${awards.map(a=>`<div class="pextra">${a[0]} ${a[1]}: <b>${a[2]||"Por confirmar"}</b></div>`).join('')}`;
     } else if(e.live){
-      html+='<div class="pend">Se completará al terminar la final.</div>';
+      content='<div class="pend">Se completará al terminar la final.</div>';
     } else {
-      html+='<div class="pend">Datos por confirmar.</div>';
+      content='<div class="pend">Datos por confirmar.</div>';
     }
-    html+='</div>';
-  });
-  list.innerHTML=html;
+    return `<div class="ped"><div class="ped-h"><span>${e.ed}.ª edición${tag}</span><span class="yr">${e.year}</span></div>${content}</div>`;
+  }).join('');
 }
 function showPhase(p){
   const g=p==="groups";
@@ -510,19 +507,15 @@ function buildPanel(g){
     const day=info?info.day:"Sin horario";
     if(day!==lastDay){fx+=`<div class="jornada" style="color:${ac}">${day}</div>`;lastDay=day;}
     const hm=info?info.hm:"";
-    fx+=`<div class="match"><div class="time">${hm}</div><div class="mrow">`+
-      `<span class="mt h">${GROUPS[g][h]}</span>`+
-      `<span class="score">`+
-      `<input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="gh" onchange="setScore('${g}',${h},${a},'gh',this.value)">`+
-      `<span>-</span>`+
-      `<input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="ga" onchange="setScore('${g}',${h},${a},'ga',this.value)">`+
-      `</span><span class="mt a">${GROUPS[g][a]}</span></div></div>`;
+    fx+=`<div class="match"><div class="time">${hm}</div><div class="mrow"><span class="mt h">${GROUPS[g][h]}</span><span class="score"><input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="gh" onchange="setScore('${g}',${h},${a},'gh',this.value)"><span>-</span><input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="ga" onchange="setScore('${g}',${h},${a},'ga',this.value)"></span><span class="mt a">${GROUPS[g][a]}</span></div></div>`;
   });
-  return `<div class="panel" id="p-${g}">`+
-    `<div class="card"><div class="card-h" style="background:${ac}"><span>Clasificación · Grupo ${g}</span><span style="font-size:12px;opacity:.9">${GROUPS[g].length} equipos</span></div>`+
-    `<table><thead><tr><th></th><th class="team">Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr></thead>`+
-    `<tbody id="tb-${g}"></tbody></table></div>`+
-    `<div class="sec-title">Resultados · Grupo ${g}</div><div class="card">${fx}</div></div>`;
+  return `<div class="panel" id="p-${g}">
+    <div class="card"><div class="card-h" style="background:${ac}"><span>Clasificación · Grupo ${g}</span><span style="font-size:12px;opacity:.9">${GROUPS[g].length} equipos</span></div>
+      <table><thead><tr><th></th><th class="team">Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr></thead><tbody id="tb-${g}"></tbody></table>
+    </div>
+    <div class="sec-title">Resultados · Grupo ${g}</div>
+    <div class="card">${fx}</div>
+  </div>`;
 }
 function init(){
   const tabs=document.getElementById("tabs"),panels=document.getElementById("panels");
