@@ -2,6 +2,7 @@ let ACCENTS, GROUPS, QUALIFY, TIMES, BRACKET, PALMARES;
 const KEY="sotodelbarco_v1";
 let DATA={}, active="A", dbRef=null, ONLINE=false, AUTH=null, isAdmin=false, koRef=null, KO={};
 let MYTEAM=(function(){try{return localStorage.getItem("soto_myteam")||"";}catch(e){return"";}})();
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 
 function canEdit(){ return !ONLINE || isAdmin; }
 function setEditable(){
@@ -117,7 +118,7 @@ function renderStandings(g){
   tb.innerHTML=standings(g).map((t,idx)=>{
     const qc=idx<QUALIFY[g]?"q":"";const dg=(t.dg>0?"+":"")+t.dg;
     const mine=(GROUPS[g][t.i]===MYTEAM)?" myteam":"";
-    return `<tr class="qual ${qc}${mine}"><td class="pos">${idx+1}</td><td class="team">${GROUPS[g][t.i]}</td><td>${t.pj}</td><td>${t.g}</td><td>${t.e}</td><td>${t.p}</td><td>${t.gf}</td><td>${t.gc}</td><td>${dg}</td><td class="pts">${t.pts}</td></tr>`;
+    return `<tr class="qual ${qc}${mine}"><td class="pos">${idx+1}</td><td class="team">${esc(GROUPS[g][t.i])}</td><td>${t.pj}</td><td>${t.g}</td><td>${t.e}</td><td>${t.p}</td><td>${t.gf}</td><td>${t.gc}</td><td>${dg}</td><td class="pts">${t.pts}</td></tr>`;
   }).join("");
 }
 function renderAllStandings(){Object.keys(GROUPS).forEach(renderStandings);}
@@ -157,6 +158,7 @@ function slotTeam(slot){
   const res=koResult(slot.m);
   if(!res.decided)return {name:(slot.t==="w"?"Ganador ":"Perdedor ")+slot.m,decided:false};
   const m=matchById(slot.m);
+  if(!m) return {name:slot.m, decided:false};
   const which=slot.t==="w"?res.winner:(res.winner==="a"?"b":"a");
   return slotTeam(m[which]);
 }
@@ -184,8 +186,8 @@ function renderKO(){
       const head=`${m.title||m.id} · ${m.day} · ${m.hm}`;
       return `<div class="komatch">
         <div class="kohead">${head}</div>
-        <div class="korow ${wa?'win':''}"><span class="koname">${A.name}</span><input type="number" min="0" inputmode="numeric" ${dis} value="${r.gh!=null?r.gh:''}" onchange="setKO('${m.id}','gh',this.value)"></div>
-        <div class="korow ${wb?'win':''}"><span class="koname">${B.name}</span><input type="number" min="0" inputmode="numeric" ${dis} value="${r.ga!=null?r.ga:''}" onchange="setKO('${m.id}','ga',this.value)"></div>
+        <div class="korow ${wa?'win':''}"><span class="koname">${esc(A.name)}</span><input type="number" min="0" inputmode="numeric" ${dis} value="${r.gh!=null?r.gh:''}" onchange="setKO('${m.id}','gh',this.value)"></div>
+        <div class="korow ${wb?'win':''}"><span class="koname">${esc(B.name)}</span><input type="number" min="0" inputmode="numeric" ${dis} value="${r.ga!=null?r.ga:''}" onchange="setKO('${m.id}','ga',this.value)"></div>
         ${tie?`<div class="kopen"><span>Penaltis</span><input type="number" min="0" inputmode="numeric" ${dis} value="${r.ph!=null?r.ph:''}" onchange="setKO('${m.id}','ph',this.value)"><span>-</span><input type="number" min="0" inputmode="numeric" ${dis} value="${r.pa!=null?r.pa:''}" onchange="setKO('${m.id}','pa',this.value)"></div>`:''}
         ${tie&&!res.decided?'<div class="koundec">Empate — define los penaltis</div>':''}
       </div>`;
@@ -207,9 +209,9 @@ function renderChampion(){
   host.innerHTML=`
     <div class="champ-title">🏆 ¡Campeón del III Torneo Soto del Barco!</div>
     <div class="podium">
-      <div class="po po2"><div class="medal">🥈</div><div class="porole">Subcampeón</div><div class="poname">${sub}</div><div class="block">2</div></div>
-      <div class="po po1"><div class="crown">👑</div><div class="medal">🥇</div><div class="porole">Campeón</div><div class="poname">${champ}</div><div class="block">1</div></div>
-      <div class="po po3"><div class="medal">🥉</div><div class="porole">3.º puesto</div><div class="poname">${third}</div><div class="block">3</div></div>
+      <div class="po po2"><div class="medal">🥈</div><div class="porole">Subcampeón</div><div class="poname">${esc(sub)}</div><div class="block">2</div></div>
+      <div class="po po1"><div class="crown">👑</div><div class="medal">🥇</div><div class="porole">Campeón</div><div class="poname">${esc(champ)}</div><div class="block">1</div></div>
+      <div class="po po3"><div class="medal">🥉</div><div class="porole">3.º puesto</div><div class="poname">${esc(third)}</div><div class="block">3</div></div>
     </div>`;
   host.style.display="block";
 }
@@ -249,20 +251,20 @@ function renderStats(){
   const cs=teams.slice().sort(function(a,b){return b.cs-a.cs||a.gc-b.gc;})[0];
   const avg=(totalGoals/M.length).toFixed(2);
   const lg=less[0];
-  function fm(m){return m.a+' '+m.ga+'-'+m.gb+' '+m.b;}
-  const ranking=less.slice(0,3).map(function(t,i){ return `<div class="rt"><span>${i+1}. ${t.n}</span><span><b>${t.gc}</b> encajados · ${t.avg.toFixed(2)}/p</span></div>`; }).join('');
+  function fm(m){return esc(m.a)+' '+m.ga+'-'+m.gb+' '+esc(m.b);}
+  const ranking=less.slice(0,3).map(function(t,i){ return `<div class="rt"><span>${i+1}. ${esc(t.n)}</span><span><b>${t.gc}</b> encajados · ${t.avg.toFixed(2)}/p</span></div>`; }).join('');
   body.innerHTML=`
     <div class="stat-hero">
       <div class="lbl">🛡️ Equipo menos goleado</div>
-      <div class="team">${lg.n}</div>
+      <div class="team">${esc(lg.n)}</div>
       <div class="sub">${lg.gc} goles encajados en ${lg.pj} partidos · media ${lg.avg.toFixed(2)} por partido</div>
     </div>
     <div class="stat-rank">${ranking}</div>
     <div class="stat-grid">
       <div class="stile"><div class="k">⚽ Goles totales</div><div class="v">${totalGoals}</div></div>
       <div class="stile"><div class="k">📊 Media goles/partido</div><div class="v">${avg}</div></div>
-      <div class="stile"><div class="k">🔥 Equipo más goleador</div><div class="v">${scorer.n} (${scorer.gf})</div></div>
-      <div class="stile"><div class="k">🧤 Más porterías a 0</div><div class="v">${cs.n} (${cs.cs})</div></div>
+      <div class="stile"><div class="k">🔥 Equipo más goleador</div><div class="v">${esc(scorer.n)} (${scorer.gf})</div></div>
+      <div class="stile"><div class="k">🧤 Más porterías a 0</div><div class="v">${esc(cs.n)} (${cs.cs})</div></div>
       <div class="stile"><div class="k">🥅 Partido + goles</div><div class="v">${fm(most)} (${most.ga+most.gb})</div></div>
       <div class="stile"><div class="k">🏟️ Partidos jugados</div><div class="v">${M.length}</div></div>
     </div>`;
@@ -308,7 +310,7 @@ function myTeamStatus(g){
   const fin=koResult("FIN");
   if(fin.decided){ const F=matchById("FIN"); if(slotTeam(fin.winner==="a"?F.a:F.b).name===MYTEAM) return "🏆 ¡Campeón del torneo!"; }
   const ms=myMatches().filter(function(m){return m.ko;});
-  for(var i=0;i<ms.length;i++){ var m=ms[i]; if(m.dec&&m.mine==="loss"){ return m.phase==="Final"?"🥈 Subcampeón":("Eliminado en "+m.phase); } }
+  for(const m of ms){ if(m.dec&&m.mine==="loss"){ return m.phase==="Final"?"🥈 Subcampeón":("Eliminado en "+m.phase); } }
   return "Clasificado · sigue en competición";
 }
 function renderMyTeam(){
@@ -321,12 +323,12 @@ function renderMyTeam(){
   const posLabel=groupReady(g)?`${pos}.º clasificado`:`${pos}.º (provisional)`;
   const matchRows=ms.map(function(m){
     const cls=m.res?(m.mine==="win"?"win":(m.mine==="loss"?"loss":"draw")):"";
-    return `<div class="mt-match ${cls}"><span class="ph${m.ko?' ph-ko':''}">${m.phase}</span><span class="op">${m.when?m.when+' · ':''}vs ${m.opp}</span><span class="rs">${m.res||'—'}</span></div>`;
+    return `<div class="mt-match ${cls}"><span class="ph${m.ko?' ph-ko':''}">${m.phase}</span><span class="op">${m.when?m.when+' · ':''}vs ${esc(m.opp)}</span><span class="rs">${m.res||'—'}</span></div>`;
   }).join('');
   body.innerHTML=`
-    <div class="mt-hero"><div class="nm">${MYTEAM}</div><div class="gp">Grupo ${g} · ${posLabel} · ${me.pts} pts</div></div>
+    <div class="mt-hero"><div class="nm">${esc(MYTEAM)}</div><div class="gp">Grupo ${g} · ${posLabel} · ${me.pts} pts</div></div>
     <div class="mt-row"><b>Estado:</b> ${myTeamStatus(g)}</div>
-    ${next?`<div class="mt-row"><b>Próximo partido:</b> ${next.phase} · ${next.when||'fecha por confirmar'} · vs ${next.opp}</div>`:''}
+    ${next?`<div class="mt-row"><b>Próximo partido:</b> ${next.phase} · ${next.when||'fecha por confirmar'} · vs ${esc(next.opp)}</div>`:''}
     <div class="mt-sub">Sus partidos</div>
     ${ms.length===0?'<div class="mt-empty">Aún no hay partidos.</div>':matchRows}`;
 }
@@ -357,10 +359,10 @@ function renderPalmares(){
     if(champ){
       const awards=[["⭐","Mejor jugador",e.mvp],["🛡️","Equipo menos goleado",e.lessGoals],["👏","Mejor espectador",e.spectator]];
       content=`
-        <div class="prow win"><span class="m">🥇</span><span class="nm">${champ}</span></div>
-        <div class="prow"><span class="m">🥈</span><span class="nm">${sub||"—"}</span></div>
-        <div class="prow"><span class="m">🥉</span><span class="nm">${third||"—"}</span></div>
-        ${fourth?`<div class="prow"><span class="m m4">4º</span><span class="nm">${fourth}</span></div>`:''}
+        <div class="prow win"><span class="m">🥇</span><span class="nm">${esc(champ)}</span></div>
+        <div class="prow"><span class="m">🥈</span><span class="nm">${esc(sub)||"—"}</span></div>
+        <div class="prow"><span class="m">🥉</span><span class="nm">${esc(third)||"—"}</span></div>
+        ${fourth?`<div class="prow"><span class="m m4">4º</span><span class="nm">${esc(fourth)}</span></div>`:''}
         <div class="pdiv"></div>
         ${awards.map(a=>`<div class="pextra">${a[0]} ${a[1]}: <b>${a[2]||"Por confirmar"}</b></div>`).join('')}`;
     } else if(e.live){
@@ -407,7 +409,6 @@ function renderBracket(){
   const cF=(cS[0]+cS[1])/2;
   const c34=cF+pitch*1.7;
   const W=xF+boxW+padX, H=Math.max(cO[cO.length-1]+boxH/2, c34+boxH/2)+16;
-  const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   const trunc=(s,n)=>{s=String(s);return s.length>n?s.slice(0,n-1)+"…":s;};
   function conn(x1,y1,x2,y2){const mx=(x1+x2)/2;return `<path d="M${x1} ${y1} H${mx} V${y2} H${x2}" fill="none" stroke="#9fc4af" stroke-width="2" opacity="0.55"/>`;}
   let g="";
@@ -469,7 +470,7 @@ function renderToday(){
   title.textContent=label;
   list.innerHTML=day.map(m=>{
     const center=m.score?`<span class="tscore">${m.score}</span>`:`<span class="tvs">vs</span>`;
-    return `<div class="titem"><span class="ttime" style="color:${m.accent}">${m.hm}</span><span class="tdot" style="background:${m.accent}">${m.badge}</span><span class="tt home">${m.n1}</span>${center}<span class="tt away">${m.n2}</span></div>`;
+    return `<div class="titem"><span class="ttime" style="color:${m.accent}">${m.hm}</span><span class="tdot" style="background:${m.accent}">${m.badge}</span><span class="tt home">${esc(m.n1)}</span>${center}<span class="tt away">${esc(m.n2)}</span></div>`;
   }).join("");
   wrap.style.display="block";
 }
@@ -506,7 +507,7 @@ function buildPanel(g){
     const day=info?info.day:"Sin horario";
     if(day!==lastDay){fx+=`<div class="jornada" style="color:${ac}">${day}</div>`;lastDay=day;}
     const hm=info?info.hm:"";
-    fx+=`<div class="match"><div class="time">${hm}</div><div class="mrow"><span class="mt h">${GROUPS[g][h]}</span><span class="score"><input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="gh" onchange="setScore('${g}',${h},${a},'gh',this.value)"><span>-</span><input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="ga" onchange="setScore('${g}',${h},${a},'ga',this.value)"></span><span class="mt a">${GROUPS[g][a]}</span></div></div>`;
+    fx+=`<div class="match"><div class="time">${hm}</div><div class="mrow"><span class="mt h">${esc(GROUPS[g][h])}</span><span class="score"><input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="gh" onchange="setScore('${g}',${h},${a},'gh',this.value)"><span>-</span><input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="ga" onchange="setScore('${g}',${h},${a},'ga',this.value)"></span><span class="mt a">${esc(GROUPS[g][a])}</span></div></div>`;
   });
   return `<div class="panel" id="p-${g}">
     <div class="card"><div class="card-h" style="background:${ac}"><span>Clasificación · Grupo ${g}</span><span style="font-size:12px;opacity:.9">${GROUPS[g].length} equipos</span></div>

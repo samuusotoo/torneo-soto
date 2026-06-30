@@ -3,7 +3,7 @@
   "short_name": "Torneo Soto",
   "description": "Clasificaciones, horarios y eliminatorias del torneo de fútbol sala",
   "lang": "es",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

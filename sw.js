@@ -1,7 +1,8 @@
-const CACHE = 'torneo-soto-v2';
+const CACHE = 'torneo-soto-v3';
 const STATIC = [
   './',
   './index.html',
+  './offline.html',
   './styles.css',
   './app.js',
   './data.js',
@@ -38,6 +39,13 @@ self.addEventListener('fetch', e => {
     return;
   }
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    caches.match(e.request).then(cached => {
+      if (cached) return cached;
+      return fetch(e.request).catch(() => {
+        if (e.request.mode === 'navigate') {
+          return caches.match('./offline.html');
+        }
+      });
+    })
   );
 });
