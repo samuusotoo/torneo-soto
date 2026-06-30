@@ -1,10 +1,11 @@
-const CACHE = 'torneo-soto-v1';
+const CACHE = 'torneo-soto-v2';
 const STATIC = [
   './',
   './index.html',
   './styles.css',
   './app.js',
   './data.js',
+  './firebase-config.js',
   './manifest.webmanifest',
   './favicon.ico',
   './icon-192.png',
