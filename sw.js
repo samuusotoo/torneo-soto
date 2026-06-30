@@ -1,18 +1,18 @@
-const CACHE = 'torneo-soto-v3';
+const CACHE = 'torneo-soto-v4';
 const STATIC = [
   './',
   './index.html',
   './offline.html',
-  './styles.css',
-  './app.js',
-  './data.js',
-  './firebase-config.js',
+  './css/styles.css',
+  './js/app.js',
+  './js/data.js',
+  './js/firebase-config.js',
   './manifest.webmanifest',
   './favicon.ico',
-  './icon-192.png',
-  './icon-512.png',
-  './icon-maskable-512.png',
-  './apple-touch-icon.png'
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/icon-maskable-512.png',
+  './icons/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', e => {
