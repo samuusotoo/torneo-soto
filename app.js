@@ -559,4 +559,9 @@ function closeInstall(){ var m=document.getElementById("installModal"); if(m) m.
   if(iOS&&!standalone){var b=document.getElementById("installBtn");if(b)b.style.display="inline-block";}
 })();
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(function(){}); }
-fetch('data.json').then(r=>r.json()).then(d=>{ACCENTS=d.accents;GROUPS=d.groups;QUALIFY=d.qualify;TIMES=d.times;BRACKET=d.bracket;PALMARES=d.palmares;if(window.firebase){init();}else{window.addEventListener('load',init);}});
+(function(){
+  var d=window.TORNEO_DATA;
+  ACCENTS=d.accents;GROUPS=d.groups;QUALIFY=d.qualify;
+  TIMES=d.times;BRACKET=d.bracket;PALMARES=d.palmares;
+})();
+if(window.firebase){init();}else{window.addEventListener('load',init);}
