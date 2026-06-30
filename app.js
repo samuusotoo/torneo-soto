@@ -235,14 +235,13 @@ function renderStats(){
   if(M.length===0){ body.innerHTML='<div class="stat-empty">Aún no hay partidos jugados.<br>Las estadísticas irán apareciendo según se disputen los encuentros.</div>'; return; }
   const T={};
   function add(n){ if(!T[n])T[n]={gf:0,gc:0,pj:0,cs:0}; return T[n]; }
-  let totalGoals=0, most=M[0], big=M[0];
+  let totalGoals=0, most=M[0];
   M.forEach(function(m){
     const A=add(m.a),B=add(m.b);
     A.gf+=m.ga;A.gc+=m.gb;A.pj++; B.gf+=m.gb;B.gc+=m.ga;B.pj++;
     if(m.gb===0)A.cs++; if(m.ga===0)B.cs++;
     totalGoals+=m.ga+m.gb;
     if((m.ga+m.gb)>(most.ga+most.gb))most=m;
-    if(Math.abs(m.ga-m.gb)>Math.abs(big.ga-big.gb))big=m;
   });
   const teams=Object.keys(T).map(function(n){var t=T[n];return {n:n,gf:t.gf,gc:t.gc,pj:t.pj,cs:t.cs,avg:t.gc/t.pj};});
   const less=teams.slice().sort(function(a,b){ if(a.avg!==b.avg)return a.avg-b.avg; if(a.gc!==b.gc)return a.gc-b.gc; return b.pj-a.pj;});
@@ -322,7 +321,7 @@ function renderMyTeam(){
   const posLabel=groupReady(g)?`${pos}.º clasificado`:`${pos}.º (provisional)`;
   const matchRows=ms.map(function(m){
     const cls=m.res?(m.mine==="win"?"win":(m.mine==="loss"?"loss":"draw")):"";
-    return `<div class="mt-match ${cls}"><span class="ph${m.ko?' ph-ko':''}">${m.phase}</span><span class="op">${m.when?m.when+' · ':''} vs ${m.opp}</span><span class="rs">${m.res||'—'}</span></div>`;
+    return `<div class="mt-match ${cls}"><span class="ph${m.ko?' ph-ko':''}">${m.phase}</span><span class="op">${m.when?m.when+' · ':''}vs ${m.opp}</span><span class="rs">${m.res||'—'}</span></div>`;
   }).join('');
   body.innerHTML=`
     <div class="mt-hero"><div class="nm">${MYTEAM}</div><div class="gp">Grupo ${g} · ${posLabel} · ${me.pts} pts</div></div>
@@ -529,8 +528,14 @@ function show(g){active=g;
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.id==="tab-"+g));
   document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id==="p-"+g));}
 function resetAll(){
-  if(ONLINE&&!isAdmin){alert("Solo el administrador puede borrar.");return;}
-  if(!confirm("¿Borrar TODOS los resultados (grupos y eliminatorias)? Esta acción no se puede deshacer."))return;
+  if(ONLINE&&!isAdmin) return;
+  const m=document.getElementById("resetModal"); if(m) m.style.display="flex";
+}
+function closeResetModal(){
+  const m=document.getElementById("resetModal"); if(m) m.style.display="none";
+}
+function confirmReset(){
+  closeResetModal();
   if(ONLINE){ dbRef.remove(); if(koRef) koRef.remove(); }
   else { DATA={}; KO={}; localSave(); koSave(); applyInputs(); renderAllStandings(); renderKO(); renderToday(); }
 }

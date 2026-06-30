@@ -101,6 +101,15 @@
   </div>
 </div>
 
+<div id="resetModal" class="modal" style="display:none" onclick="if(event.target===this)closeResetModal()">
+  <div class="modal-card">
+    <div class="modal-title">🗑 Borrar todos los resultados</div>
+    <p class="modal-sub">Se eliminarán <b>todos</b> los resultados de grupos y eliminatorias. Esta acción no se puede deshacer.</p>
+    <button class="btn danger modal-btn" onclick="confirmReset()">Sí, borrar todo</button>
+    <button class="btn" onclick="closeResetModal()" style="width:100%;margin-top:8px">Cancelar</button>
+  </div>
+</div>
+
 <div id="loginModal" class="modal" style="display:none" onclick="if(event.target===this)closeLogin()">
   <div class="modal-card">
     <div class="modal-title">🔒 Administrador</div>
