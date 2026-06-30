@@ -88,7 +88,7 @@ window.TORNEO_DATA = {
   },
   "palmares": [
     {"ed":"III","year":2026,"live":true},
-    {"ed":"II","year":2025,"champ":"Construcciones Liborj","sub":"Seguros Ever","third":"Ventamar Pralux","fourth":"Tupamaros","mvp":"Uri (Seguros Ever)","lessGoals":"Salinas","spectator":""},
+    {"ed":"II","year":2025,"champ":"Construcciones Liborj","sub":"Seguros Ever","third":"Ventamar Pralux","fourth":"Tupamaros","mvp":"Uri (Seguros Ever)","lessGoals":"Salinas","spectator":"Marisol"},
     {"ed":"I","year":2024,"champ":"Sidrería Casa Pablo","sub":"Mamel 10","third":"Ventamar Pralux","fourth":"Los Chupis","mvp":"Fredy (Sidrería Casa Pablo)","lessGoals":"Construcciones Liborj","spectator":"Buría"}
   ]
 };
