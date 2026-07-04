@@ -55,6 +55,8 @@ tr+tr td{border-top:1px solid var(--line)}
 .today-arrow:hover{opacity:1}
 .today-arrow:disabled{opacity:.2;cursor:default}
 .today-list{display:flex;flex-direction:column;gap:6px}
+.btn-share-card{display:block;width:100%;margin-top:10px;padding:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:10px;color:#c8f7d8;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.3px}
+.btn-share-card:hover{background:rgba(255,255,255,.18)}
 .titem{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.18);border-radius:10px;padding:7px 10px;color:#fff;font-size:14px}
 .ttime{font-weight:800;font-size:12px;min-width:44px}
 .tdot{width:20px;height:20px;border-radius:6px;color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}

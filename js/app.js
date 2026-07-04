@@ -16,10 +16,10 @@ function setEditable(){
   if(document.getElementById("ko-list")) renderKO();
   const kt=document.querySelector(".kotabs");
   if(kt){ if(canEdit()){ kt.style.display="flex"; } else { kt.style.display="none"; koView("bracket"); } }
-  const mode=document.getElementById("mode"), btn=document.getElementById("adminBtn"), reset=document.getElementById("resetBtn"), exp=document.getElementById("exportBtn");
-  if(!ONLINE){ mode.textContent="📝 Edición local"; mode.className="mode admin"; if(btn)btn.style.display="none"; if(reset)reset.style.display="inline-block"; if(exp)exp.style.display="inline-block"; return; }
-  if(isAdmin){ mode.textContent="✏️ Administrador"; mode.className="mode admin"; btn.textContent="🔓 Salir de administrador"; reset.style.display="inline-block"; exp.style.display="inline-block"; }
-  else { mode.textContent="👁 Solo lectura"; mode.className="mode view"; btn.textContent="🔒 Entrar como administrador"; reset.style.display="none"; exp.style.display="none"; }
+  const mode=document.getElementById("mode"), btn=document.getElementById("adminBtn"), reset=document.getElementById("resetBtn"), exp=document.getElementById("exportBtn"), share=document.getElementById("shareCardBtn");
+  if(!ONLINE){ mode.textContent="📝 Edición local"; mode.className="mode admin"; if(btn)btn.style.display="none"; if(reset)reset.style.display="inline-block"; if(exp)exp.style.display="inline-block"; if(share)share.style.display="block"; return; }
+  if(isAdmin){ mode.textContent="✏️ Administrador"; mode.className="mode admin"; btn.textContent="🔓 Salir de administrador"; reset.style.display="inline-block"; exp.style.display="inline-block"; if(share)share.style.display="block"; }
+  else { mode.textContent="👁 Solo lectura"; mode.className="mode view"; btn.textContent="🔒 Entrar como administrador"; reset.style.display="none"; exp.style.display="none"; if(share)share.style.display="none"; }
 }
 function adminToggle(){
   if(!ONLINE||!AUTH) return;
@@ -563,6 +563,81 @@ function closeInstall(){ var m=document.getElementById("installModal"); if(m) m.
   var iOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
   if(iOS&&!standalone){var b=document.getElementById("installBtn");if(b)b.style.display="inline-block";}
 })();
+function exportTodayCard(){
+  const cur=activeDay();
+  const items=bannerItems().filter(m=>m.d.slice(0,10)===cur).sort((a,b)=>a.d<b.d?-1:1);
+  if(!items.length)return;
+  const W=1080,PAD=60,ROW=140,HEADER=230,DATEK=80,FOOTER=90;
+  const H=PAD+HEADER+DATEK+items.length*ROW+FOOTER;
+  const cv=document.createElement("canvas");cv.width=W;cv.height=H;
+  const c=cv.getContext("2d");
+  // Fondo
+  const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,"#0b3d24");bg.addColorStop(1,"#06301c");
+  c.fillStyle=bg;c.fillRect(0,0,W,H);
+  // Título
+  c.textAlign="center";
+  c.fillStyle="#fff";c.font="bold 54px 'Segoe UI',Arial,sans-serif";
+  c.fillText("III TORNEO SOTO DEL BARCO",W/2,PAD+66);
+  c.fillStyle="#c8f7d8";c.font="28px 'Segoe UI',Arial,sans-serif";
+  c.fillText("Fútbol Sala",W/2,PAD+108);
+  c.fillStyle="rgba(255,255,255,.2)";c.fillRect(PAD,PAD+128,W-PAD*2,1);
+  // Fecha
+  c.fillStyle="#fff";c.font="bold 40px 'Segoe UI',Arial,sans-serif";
+  c.fillText((items[0].day||cur).toUpperCase(),W/2,PAD+HEADER-10);
+  // Filas de partidos
+  function rrect(x,y,w,h,r){
+    c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);
+    c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);
+    c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();
+  }
+  function clamp(txt,maxW,sz){
+    c.font=sz+"px 'Segoe UI',Arial,sans-serif";
+    if(c.measureText(txt).width<=maxW)return txt;
+    while(c.measureText(txt+"…").width>maxW&&txt.length>1)txt=txt.slice(0,-1);
+    return txt+"…";
+  }
+  const LEFT=162,SCOREW=112,TEAMW=(W-PAD*2-LEFT-SCOREW-20)/2;
+  const Y0=PAD+HEADER+DATEK;
+  items.forEach(function(m,i){
+    const y=Y0+i*ROW+8,rh=ROW-16;
+    c.fillStyle=i%2===0?"rgba(255,255,255,.07)":"rgba(0,0,0,.12)";
+    rrect(PAD,y,W-PAD*2,rh,12);c.fill();
+    // Franja de color
+    c.fillStyle=m.accent;rrect(PAD,y,8,rh,4);c.fill();
+    // Badge grupo
+    const BW=38,bx=PAD+18,by=y+rh/2-BW/2;
+    c.fillStyle=m.accent;rrect(bx,by,BW,BW,6);c.fill();
+    c.fillStyle="#fff";c.font="bold 18px 'Segoe UI',Arial,sans-serif";
+    c.textAlign="center";c.fillText(m.badge,bx+BW/2,by+BW/2+6);
+    // Hora
+    c.fillStyle="#c8f7d8";c.font="bold 28px 'Segoe UI',Arial,sans-serif";
+    c.textAlign="left";c.fillText(m.hm,bx+BW+10,y+rh/2+9);
+    // Equipo local
+    const ht=clamp(m.n1,TEAMW,26);
+    c.fillStyle="#fff";c.textAlign="right";c.fillText(ht,PAD+LEFT+TEAMW,y+rh/2+9);
+    // Marcador o vs
+    const sx=PAD+LEFT+TEAMW+10+SCOREW/2;
+    c.textAlign="center";
+    if(m.score){
+      c.fillStyle="#fff";rrect(sx-SCOREW/2,y+rh/2-22,SCOREW,44,8);c.fill();
+      c.fillStyle="#0a3320";c.font="bold 28px 'Segoe UI',Arial,sans-serif";c.fillText(m.score,sx,y+rh/2+10);
+    }else{
+      c.fillStyle="rgba(200,247,216,.7)";c.font="bold 22px 'Segoe UI',Arial,sans-serif";c.fillText("vs",sx,y+rh/2+8);
+    }
+    // Equipo visitante
+    const at=clamp(m.n2,TEAMW,26);
+    c.fillStyle="#fff";c.textAlign="left";c.fillText(at,sx+SCOREW/2+10,y+rh/2+9);
+  });
+  // Footer
+  const fy=Y0+items.length*ROW+14;
+  c.fillStyle="rgba(255,255,255,.18)";c.fillRect(PAD,fy,W-PAD*2,1);
+  c.fillStyle="#9fc4af";c.font="22px 'Segoe UI',Arial,sans-serif";
+  c.textAlign="center";c.fillText("III Torneo Soto del Barco · 2026",W/2,fy+46);
+  // Descargar
+  const link=document.createElement("a");
+  link.download="partidos-"+cur+".png";link.href=cv.toDataURL("image/png");link.click();
+}
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(function(){}); }
 (function(){
   var d=window.TORNEO_DATA;
