@@ -1,4 +1,4 @@
-const CACHE = 'torneo-soto-v4';
+const CACHE = 'torneo-soto-v5';
 const STATIC = [
   './',
   './index.html',
@@ -17,7 +17,7 @@ const STATIC = [
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(STATIC))
+    caches.open(CACHE).then(c => c.addAll(STATIC.map(url => new Request(url, {cache: 'reload'}))))
   );
   self.skipWaiting();
 });
