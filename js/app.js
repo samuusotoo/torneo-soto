@@ -1,6 +1,6 @@
 let ACCENTS, GROUPS, QUALIFY, TIMES, BRACKET, PALMARES;
 const KEY="sotodelbarco_v1";
-let DATA={}, active="A", dbRef=null, ONLINE=false, AUTH=null, isAdmin=false, koRef=null, KO={};
+let DATA={}, active="A", dbRef=null, ONLINE=false, AUTH=null, isAdmin=false, koRef=null, KO={}, horariosRef=null, HORARIOS={};
 let MYTEAM=(function(){try{return localStorage.getItem("soto_myteam")||"";}catch(e){return"";}})();
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 let viewDate=null;
@@ -13,6 +13,8 @@ function canEdit(){ return !ONLINE || isAdmin; }
 function setEditable(){
   const ed=canEdit();
   document.querySelectorAll("input[data-key]").forEach(i=>{i.disabled=!ed;});
+  document.querySelectorAll("input.time-input").forEach(i=>{i.style.display=ed?"block":"none";});
+  document.querySelectorAll(".time-txt").forEach(s=>{s.style.display=ed?"none":"block";});
   if(document.getElementById("ko-list")) renderKO();
   const kt=document.querySelector(".kotabs");
   if(kt){ if(canEdit()){ kt.style.display="flex"; } else { kt.style.display="none"; koView("bracket"); } }
@@ -52,6 +54,8 @@ function localLoad(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(
 function localSave(){localStorage.setItem(KEY,JSON.stringify(DATA))}
 function koLoad(){try{return JSON.parse(localStorage.getItem(KEY+"_ko"))||{}}catch(e){return{}}}
 function koSave(){localStorage.setItem(KEY+"_ko",JSON.stringify(KO))}
+function horariosLoad(){try{return JSON.parse(localStorage.getItem(KEY+"_hor"))||{}}catch(e){return{}}}
+function horariosSave(){localStorage.setItem(KEY+"_hor",JSON.stringify(HORARIOS))}
 function initStorage(){
   const enabled = FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey!=="PEGA_AQUI";
   if(enabled){
@@ -63,6 +67,8 @@ function initStorage(){
       AUTH.onAuthStateChanged(u=>{ isAdmin=!!u; setEditable(); });
       koRef=firebase.database().ref("eliminatorias");
       koRef.on("value",snap=>{ KO=snap.val()||{}; renderKO(); renderToday(); });
+      horariosRef=firebase.database().ref("horarios");
+      horariosRef.on("value",snap=>{ HORARIOS=snap.val()||{}; applyInputs(); renderToday(); });
       dbRef.on("value",snap=>{ DATA=snap.val()||{}; applyInputs(); renderAllStandings(); renderToday(); setConn("● compartido en directo","on"); },
         err=>{ setConn("error de conexión","off"); console.error(err); });
       firebase.database().ref(".info/connected").on("value",s=>{ setConn(s.val()===true?"● compartido en directo":"sin conexión…", s.val()===true?"on":"off"); });
@@ -70,7 +76,7 @@ function initStorage(){
   } else fallbackLocal();
 }
 function fallbackLocal(){
-  ONLINE=false; DATA=localLoad(); KO=koLoad();
+  ONLINE=false; DATA=localLoad(); KO=koLoad(); HORARIOS=horariosLoad();
   document.getElementById("setup").style.display="block";
   setConn("● modo local","off");
   applyInputs(); renderAllStandings(); renderKO(); renderToday(); setEditable();
@@ -170,7 +176,11 @@ function slotTeam(slot){
 }
 function bannerItems(){
   let out=[];
-  allMatches().filter(m=>m.info).forEach(m=>{ out.push({d:m.info.d,hm:m.info.hm,day:m.info.day,accent:ACCENTS[m.g],badge:m.g,n1:GROUPS[m.g][m.h],n2:GROUPS[m.g][m.a],score:scoreText(m.g,m.h,m.a,m.key)}); });
+  allMatches().filter(m=>m.info).forEach(m=>{
+    const ov=HORARIOS[m.g]&&HORARIOS[m.g][m.key]?HORARIOS[m.g][m.key]:null;
+    const d=ov?ov.d:m.info.d,hm=ov?ov.hm:m.info.hm,day=ov?ov.day:m.info.day;
+    out.push({d,hm,day,accent:ACCENTS[m.g],badge:m.g,n1:GROUPS[m.g][m.h],n2:GROUPS[m.g][m.a],score:scoreText(m.g,m.h,m.a,m.key)});
+  });
   ["octavos","cuartos","semis","finales"].forEach(r=>BRACKET[r].forEach(m=>{
     const A=slotTeam(m.a),B=slotTeam(m.b),res=KO[m.id]||{};
     let sc=null; if(res.gh!==""&&res.ga!==""&&res.gh!=null&&res.ga!=null) sc=res.gh+" - "+res.ga;
@@ -491,6 +501,18 @@ function setScore(g,h,a,field,val){
   if((cur.gh===""||cur.gh==null)&&(cur.ga===""||cur.ga==null)) writeMatch(g,key,null);
   else writeMatch(g,key,cur);
 }
+function setMatchTime(g,key,val){
+  if(!canEdit())return;
+  const info=TIMES[g]&&TIMES[g][key]?TIMES[g][key]:null;
+  const datePart=info?info.d.slice(0,10):todayStr();
+  const days=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+  const months=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  const dt=new Date(datePart+"T"+val);
+  const dayStr=days[dt.getDay()]+" "+dt.getDate()+" "+months[dt.getMonth()];
+  const ov={d:datePart+"T"+val,hm:val,day:dayStr};
+  if(ONLINE){ horariosRef.child(g+"/"+key).set(ov); }
+  else { HORARIOS[g]=HORARIOS[g]||{}; HORARIOS[g][key]=ov; horariosSave(); applyInputs(); renderToday(); }
+}
 function applyInputs(){
   document.querySelectorAll("input[data-key]").forEach(inp=>{
     if(inp===document.activeElement)return;
@@ -498,6 +520,16 @@ function applyInputs(){
     const r=(DATA[g]||{})[key];let v="";
     if(r){const home=r.home,h=+inp.dataset.h; if(f==="gh") v=(home===h)?r.gh:r.ga; else v=(home===h)?r.ga:r.gh;}
     inp.value=(v==null?"":v);
+  });
+  document.querySelectorAll("input.time-input").forEach(inp=>{
+    if(inp===document.activeElement)return;
+    const g=inp.dataset.g,key=inp.dataset.key;
+    const ov=HORARIOS[g]&&HORARIOS[g][key]?HORARIOS[g][key]:null;
+    if(ov){
+      inp.value=ov.hm;
+      const span=inp.previousElementSibling;
+      if(span&&span.classList.contains("time-txt"))span.textContent=ov.hm;
+    }
   });
 }
 
@@ -514,7 +546,7 @@ function buildPanel(g){
     const day=info?info.day:"Sin horario";
     if(day!==lastDay){fx+=`<div class="jornada" style="color:${ac}">${day}</div>`;lastDay=day;}
     const hm=info?info.hm:"";
-    fx+=`<div class="match"><div class="time">${hm}</div><div class="mrow"><span class="mt h">${esc(GROUPS[g][h])}</span><span class="score"><input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="gh" onchange="setScore('${g}',${h},${a},'gh',this.value)"><span>-</span><input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="ga" onchange="setScore('${g}',${h},${a},'ga',this.value)"></span><span class="mt a">${esc(GROUPS[g][a])}</span></div></div>`;
+    fx+=`<div class="match"><div class="time"><span class="time-txt">${hm}</span><input type="time" class="time-input" data-g="${g}" data-key="${key}" value="${hm}" onchange="setMatchTime('${g}','${key}',this.value)" style="display:none"></div><div class="mrow"><span class="mt h">${esc(GROUPS[g][h])}</span><span class="score"><input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="gh" onchange="setScore('${g}',${h},${a},'gh',this.value)"><span>-</span><input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="ga" onchange="setScore('${g}',${h},${a},'ga',this.value)"></span><span class="mt a">${esc(GROUPS[g][a])}</span></div></div>`;
   });
   return `<div class="panel" id="p-${g}">
     <div class="card"><div class="card-h" style="background:${ac}"><span>Clasificación · Grupo ${g}</span><span style="font-size:12px;opacity:.9">${GROUPS[g].length} equipos</span></div>
