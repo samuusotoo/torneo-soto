@@ -741,7 +741,13 @@ function exportTodayCard(){
   const link=document.createElement("a");
   link.download="partidos-"+cur+".png";link.href=cv.toDataURL("image/png");link.click();
 }
-if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(function(){}); }
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(function(){});
+  let _refreshing=false;
+  navigator.serviceWorker.addEventListener("controllerchange",function(){
+    if(_refreshing)return; _refreshing=true; window.location.reload();
+  });
+}
 (function(){
   var d=window.TORNEO_DATA;
   ACCENTS=d.accents;GROUPS=d.groups;QUALIFY=d.qualify;
