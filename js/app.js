@@ -16,10 +16,10 @@ function setEditable(){
   if(document.getElementById("ko-list")) renderKO();
   const kt=document.querySelector(".kotabs");
   if(kt){ if(canEdit()){ kt.style.display="flex"; } else { kt.style.display="none"; koView("bracket"); } }
-  const mode=document.getElementById("mode"), btn=document.getElementById("adminBtn"), reset=document.getElementById("resetBtn");
-  if(!ONLINE){ mode.textContent="📝 Edición local"; mode.className="mode admin"; if(btn)btn.style.display="none"; if(reset)reset.style.display="inline-block"; return; }
-  if(isAdmin){ mode.textContent="✏️ Administrador"; mode.className="mode admin"; btn.textContent="🔓 Salir de administrador"; reset.style.display="inline-block"; }
-  else { mode.textContent="👁 Solo lectura"; mode.className="mode view"; btn.textContent="🔒 Entrar como administrador"; reset.style.display="none"; }
+  const mode=document.getElementById("mode"), btn=document.getElementById("adminBtn"), reset=document.getElementById("resetBtn"), exp=document.getElementById("exportBtn");
+  if(!ONLINE){ mode.textContent="📝 Edición local"; mode.className="mode admin"; if(btn)btn.style.display="none"; if(reset)reset.style.display="inline-block"; if(exp)exp.style.display="inline-block"; return; }
+  if(isAdmin){ mode.textContent="✏️ Administrador"; mode.className="mode admin"; btn.textContent="🔓 Salir de administrador"; reset.style.display="inline-block"; exp.style.display="inline-block"; }
+  else { mode.textContent="👁 Solo lectura"; mode.className="mode view"; btn.textContent="🔒 Entrar como administrador"; reset.style.display="none"; exp.style.display="none"; }
 }
 function adminToggle(){
   if(!ONLINE||!AUTH) return;
