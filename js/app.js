@@ -3,6 +3,11 @@ const KEY="sotodelbarco_v1";
 let DATA={}, active="A", dbRef=null, ONLINE=false, AUTH=null, isAdmin=false, koRef=null, KO={};
 let MYTEAM=(function(){try{return localStorage.getItem("soto_myteam")||"";}catch(e){return"";}})();
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+let viewDate=null;
+function todayStr(){const n=new Date();return n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getDate()).padStart(2,"0");}
+function matchDays(){const s=new Set();bannerItems().forEach(m=>s.add(m.d.slice(0,10)));return [...s].sort();}
+function activeDay(){if(viewDate)return viewDate;const t=todayStr(),days=matchDays(),next=days.find(d=>d>=t);return next||days[days.length-1];}
+function navDay(dir){const days=matchDays(),idx=days.indexOf(activeDay()),ni=idx+dir;if(ni>=0&&ni<days.length){viewDate=days[ni];renderToday();}}
 
 function canEdit(){ return !ONLINE || isAdmin; }
 function setEditable(){
@@ -455,19 +460,20 @@ function setKO(id,field,val){
 }
 function renderToday(){
   const wrap=document.getElementById("todaywrap"),list=document.getElementById("today-list"),title=document.getElementById("today-title");
+  const prevBtn=document.getElementById("today-prev"),nextBtn=document.getElementById("today-next");
   if(!wrap)return;
-  const n=new Date();
-  const today=n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getDate()).padStart(2,"0");
-  const all=bannerItems();
-  let day=all.filter(m=>m.d.slice(0,10)===today),label="⚡ Partidos de hoy";
-  if(day.length===0){
-    const fut=all.filter(m=>m.d.slice(0,10)>=today).sort((a,b)=>a.d<b.d?-1:1);
-    if(fut.length===0){ wrap.style.display="none"; return; }
-    const nd=fut[0].d.slice(0,10);
-    day=fut.filter(m=>m.d.slice(0,10)===nd); label="📅 Próxima jornada · "+fut[0].day;
-  }
-  day.sort((a,b)=>a.d<b.d?-1:1);
+  const days=matchDays();
+  if(days.length===0){wrap.style.display="none";return;}
+  const today=todayStr(),cur=activeDay(),idx=days.indexOf(cur);
+  const day=bannerItems().filter(m=>m.d.slice(0,10)===cur).sort((a,b)=>a.d<b.d?-1:1);
+  const dayLabel=day.length>0?day[0].day:cur;
+  let label;
+  if(cur===today) label="⚡ Hoy · "+dayLabel;
+  else if(cur<today) label="📋 "+dayLabel;
+  else label="📅 "+dayLabel;
   title.textContent=label;
+  if(prevBtn)prevBtn.disabled=idx<=0;
+  if(nextBtn)nextBtn.disabled=idx>=days.length-1;
   list.innerHTML=day.map(m=>{
     const center=m.score?`<span class="tscore">${m.score}</span>`:`<span class="tvs">vs</span>`;
     return `<div class="titem"><span class="ttime" style="color:${m.accent}">${m.hm}</span><span class="tdot" style="background:${m.accent}">${m.badge}</span><span class="tt home">${esc(m.n1)}</span>${center}<span class="tt away">${esc(m.n2)}</span></div>`;

@@ -49,7 +49,11 @@ tr+tr td{border-top:1px solid var(--line)}
 .legend{color:#c8f7d8;font-size:12px;text-align:center;margin-top:-6px;opacity:.85}
 .note{color:#9fc4af;font-size:11px;text-align:center;margin:18px 14px 0;line-height:1.6}
 .todaywrap{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:14px;padding:10px 12px;margin-bottom:14px}
-.today-title{color:#fff;font-weight:800;font-size:13px;letter-spacing:.5px;margin-bottom:8px}
+.today-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.today-title{color:#fff;font-weight:800;font-size:13px;letter-spacing:.5px;flex:1;text-align:center}
+.today-arrow{background:none;border:none;color:#c8f7d8;font-size:22px;line-height:1;padding:0 6px;cursor:pointer;opacity:.7;transition:opacity .15s}
+.today-arrow:hover{opacity:1}
+.today-arrow:disabled{opacity:.2;cursor:default}
 .today-list{display:flex;flex-direction:column;gap:6px}
 .titem{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.18);border-radius:10px;padding:7px 10px;color:#fff;font-size:14px}
 .ttime{font-weight:800;font-size:12px;min-width:44px}

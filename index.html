@@ -29,7 +29,11 @@
   </div>
   <div class="champ" id="champion" style="display:none"></div>
   <div class="todaywrap" id="todaywrap" style="display:none">
-    <div class="today-title" id="today-title">⚡ Partidos de hoy</div>
+    <div class="today-nav">
+      <button class="today-arrow" id="today-prev" onclick="navDay(-1)" aria-label="Día anterior">&#8249;</button>
+      <div class="today-title" id="today-title"></div>
+      <button class="today-arrow" id="today-next" onclick="navDay(1)" aria-label="Día siguiente">&#8250;</button>
+    </div>
     <div class="today-list" id="today-list"></div>
   </div>
   <div class="phasetabs" id="phasetabs">
