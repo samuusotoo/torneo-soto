@@ -34,6 +34,7 @@ tr+tr td{border-top:1px solid var(--line)}
 .match:first-of-type{border-top:none}
 .time{font-size:11px;font-weight:700;color:var(--accentA);text-align:center;letter-spacing:.3px;min-height:13px}
 .time-txt{display:block}
+.time-arb{display:block;font-size:10px;color:var(--muted);font-weight:600;margin-top:2px;letter-spacing:.2px}
 .time-input{background:rgba(22,163,74,.06);border:none;border-bottom:1px solid rgba(22,163,74,.4);color:var(--accentA);font-size:11px;font-weight:700;font-family:inherit;letter-spacing:.3px;text-align:center;width:100%;padding:1px 2px;cursor:pointer;-webkit-appearance:none;outline:none;border-radius:3px}
 .time-input::-webkit-calendar-picker-indicator{filter:invert(0.5) sepia(1) saturate(5) hue-rotate(85deg);opacity:.7;width:10px;height:10px}
 .mrow{display:flex;align-items:center;gap:8px;font-size:14px}

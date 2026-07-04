@@ -86,6 +86,29 @@ window.TORNEO_DATA = {
       {"id":"FIN","title":"Final","day":"Vie 31 jul","hm":"21:00","d":"2026-07-31T21:00","a":{"t":"w","m":"S1"},"b":{"t":"w","m":"S2"}}
     ]
   },
+  "arbitros": {
+    "2026-07-03": "Marco Antonio Suárez",
+    "2026-07-06": "Rodrigo López",
+    "2026-07-07": "Jesús Granados",
+    "2026-07-08": "Jonathan Manjón",
+    "2026-07-09": "Aimar Pérez",
+    "2026-07-10": "Óliver García",
+    "2026-07-13": "Sin confirmar",
+    "2026-07-14": "Sin confirmar",
+    "2026-07-15": "Sin confirmar",
+    "2026-07-16": "Sin confirmar",
+    "2026-07-17": "Sin confirmar",
+    "2026-07-20": "Sin confirmar",
+    "2026-07-21": "Sin confirmar",
+    "2026-07-22": "Sin confirmar",
+    "2026-07-23": "Sin confirmar",
+    "2026-07-24": "Sin confirmar",
+    "2026-07-27": "Sin confirmar",
+    "2026-07-28": "Sin confirmar",
+    "2026-07-29": "Sin confirmar",
+    "2026-07-30": "Sin confirmar",
+    "2026-07-31": "Sin confirmar"
+  },
   "palmares": [
     {"ed":"III","year":2026,"live":true},
     {"ed":"II","year":2025,"champ":"Construcciones Liborj","sub":"Seguros Ever","third":"Ventamar Pralux","fourth":"Tupamaros","mvp":"Uri (Seguros Ever)","lessGoals":"Salinas","spectator":"Marisol"},

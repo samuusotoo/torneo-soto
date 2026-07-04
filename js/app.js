@@ -1,4 +1,4 @@
-let ACCENTS, GROUPS, QUALIFY, TIMES, BRACKET, PALMARES;
+let ACCENTS, GROUPS, QUALIFY, TIMES, BRACKET, PALMARES, ARBITROS={};
 const KEY="sotodelbarco_v1";
 let DATA={}, active="A", dbRef=null, ONLINE=false, AUTH=null, isAdmin=false, koRef=null, KO={}, horariosRef=null, HORARIOS={};
 let MYTEAM=(function(){try{return localStorage.getItem("soto_myteam")||"";}catch(e){return"";}})();
@@ -546,7 +546,8 @@ function buildPanel(g){
     const day=info?info.day:"Sin horario";
     if(day!==lastDay){fx+=`<div class="jornada" style="color:${ac}">${day}</div>`;lastDay=day;}
     const hm=info?info.hm:"";
-    fx+=`<div class="match"><div class="time"><span class="time-txt">${hm}</span><input type="time" class="time-input" data-g="${g}" data-key="${key}" value="${hm}" onchange="setMatchTime('${g}','${key}',this.value)" style="display:none"></div><div class="mrow"><span class="mt h">${esc(GROUPS[g][h])}</span><span class="score"><input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="gh" onchange="setScore('${g}',${h},${a},'gh',this.value)"><span>-</span><input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="ga" onchange="setScore('${g}',${h},${a},'ga',this.value)"></span><span class="mt a">${esc(GROUPS[g][a])}</span></div></div>`;
+    const arb=info?(ARBITROS[info.d.slice(0,10)]||""):"";
+    fx+=`<div class="match"><div class="time"><span class="time-txt">${hm}</span><input type="time" class="time-input" data-g="${g}" data-key="${key}" value="${hm}" onchange="setMatchTime('${g}','${key}',this.value)" style="display:none">${arb?`<span class="time-arb">${esc(arb)}</span>`:""}</div><div class="mrow"><span class="mt h">${esc(GROUPS[g][h])}</span><span class="score"><input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="gh" onchange="setScore('${g}',${h},${a},'gh',this.value)"><span>-</span><input type="number" min="0" inputmode="numeric" data-g="${g}" data-key="${key}" data-h="${h}" data-f="ga" onchange="setScore('${g}',${h},${a},'ga',this.value)"></span><span class="mt a">${esc(GROUPS[g][a])}</span></div></div>`;
   });
   return `<div class="panel" id="p-${g}">
     <div class="card"><div class="card-h" style="background:${ac}"><span>Clasificación · Grupo ${g}</span><span style="font-size:12px;opacity:.9">${GROUPS[g].length} equipos</span></div>
@@ -751,6 +752,6 @@ if("serviceWorker" in navigator){
 (function(){
   var d=window.TORNEO_DATA;
   ACCENTS=d.accents;GROUPS=d.groups;QUALIFY=d.qualify;
-  TIMES=d.times;BRACKET=d.bracket;PALMARES=d.palmares;
+  TIMES=d.times;BRACKET=d.bracket;PALMARES=d.palmares;ARBITROS=d.arbitros||{};
 })();
 if(window.firebase){init();}else{window.addEventListener('load',init);}
