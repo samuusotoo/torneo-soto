@@ -61,6 +61,7 @@ function initStorage(){
   if(enabled){
     try{
       firebase.initializeApp(FIREBASE_CONFIG);
+      if(firebase.analytics) firebase.analytics();
       dbRef=firebase.database().ref("resultados");
       ONLINE=true; setConn("conectando…","off");
       AUTH=firebase.auth();

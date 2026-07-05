@@ -5,5 +5,6 @@ const FIREBASE_CONFIG = {
   projectId:         "torneo-soto",
   storageBucket:     "torneo-soto.firebasestorage.app",
   messagingSenderId: "380308076940",
-  appId:             "1:380308076940:web:f433b550bc7b2e98713ea9"
+  appId:             "1:380308076940:web:f433b550bc7b2e98713ea9",
+  measurementId:     "G-V5P0TXX6C8"
 };
