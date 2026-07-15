@@ -566,6 +566,7 @@ function init(){
     panels.insertAdjacentHTML("beforeend",buildPanel(g));
   });
   show("A"); renderKO(); renderBracket(); renderToday(); initStorage(); setEditable();
+  if(todayStr()>="2026-07-22") showPhase("final");
 }
 function show(g){active=g;
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.id==="tab-"+g));
