@@ -639,6 +639,28 @@ function closeInstall(){ var m=document.getElementById("installModal"); if(m) m.
   var iOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
   if(iOS&&!standalone){var b=document.getElementById("installBtn");if(b)b.style.display="inline-block";}
 })();
+function saveImage(cv,filename){
+  const dataUrl=cv.toDataURL("image/png");
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  if(isIOS){
+    const ov=document.createElement("div");
+    ov.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px";
+    const tip=document.createElement("p");
+    tip.textContent="Mantén pulsada la imagen para guardarla en Fotos";
+    tip.style.cssText="color:#c8f7d8;font-size:15px;margin:0 0 14px;text-align:center";
+    const img=document.createElement("img");
+    img.src=dataUrl;
+    img.style.cssText="max-width:100%;max-height:calc(100vh - 120px);border-radius:8px";
+    const btn=document.createElement("button");
+    btn.textContent="Cerrar";
+    btn.style.cssText="margin-top:16px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:8px;padding:10px 28px;font-size:16px;cursor:pointer";
+    btn.onclick=()=>document.body.removeChild(ov);
+    ov.appendChild(tip);ov.appendChild(img);ov.appendChild(btn);
+    document.body.appendChild(ov);
+  }else{
+    const link=document.createElement("a");link.download=filename;link.href=dataUrl;link.click();
+  }
+}
 function exportGroupCard(g){
   const st=standings(g),teams=GROUPS[g],qualify=QUALIFY[g],accent=ACCENTS[g];
   const W=1080,PAD=60,ROW=90,HROW=65,HDR=230,GRPK=85,FOOTER=90;
@@ -706,7 +728,7 @@ function exportGroupCard(g){
   c.fillStyle="#9fc4af";c.font="22px 'Segoe UI',Arial,sans-serif";c.textAlign="center";
   c.fillText("III Torneo Soto del Barco · 2026",W/2,fy+46);
   // Descargar
-  const link=document.createElement("a");link.download="clasificacion-grupo-"+g+".png";link.href=cv.toDataURL("image/png");link.click();
+  saveImage(cv,"clasificacion-grupo-"+g+".png");
 }
 function exportAllStandingsCard(){
   const W=1080,PAD=40,HDR=160,GRPTITLE=48,HROW=0,ROW=52,GGAP=16,FOOTER=55;
@@ -759,7 +781,7 @@ function exportAllStandingsCard(){
   c.fillStyle="rgba(255,255,255,.15)";c.fillRect(PAD,Y+10,W-PAD*2,1);
   c.fillStyle="#9fc4af";c.font="20px 'Segoe UI',Arial,sans-serif";c.textAlign="center";
   c.fillText("III Torneo Soto del Barco · 2026",W/2,Y+42);
-  const link=document.createElement("a");link.download="clasificaciones-grupos.png";link.href=cv.toDataURL("image/png");link.click();
+  saveImage(cv,"clasificaciones-grupos.png");
 }
 function exportBracketCard(){
   const W=1080,HDR=148,FOOT=55,PAD=22,BOXW=230,BOXH=58,PITCH=80,COLGAP=268,PADY=20;
@@ -808,7 +830,7 @@ function exportBracketCard(){
   drawBox(xF,cF,F[1]);drawBox(xF,c34,F[0]);
   c.fillStyle="rgba(255,255,255,.15)";c.fillRect(PAD,H-FOOT+8,W-PAD*2,1);
   c.fillStyle="#9fc4af";c.font="20px 'Segoe UI',Arial,sans-serif";c.textAlign="center";c.fillText("III Torneo Soto del Barco · 2026",W/2,H-18);
-  const link=document.createElement("a");link.download="fase-final.png";link.href=cv.toDataURL("image/png");link.click();
+  saveImage(cv,"fase-final.png");
 }
 function exportTodayCard(){
   const cur=activeDay();
@@ -881,9 +903,7 @@ function exportTodayCard(){
   c.fillStyle="rgba(255,255,255,.18)";c.fillRect(PAD,fy,W-PAD*2,1);
   c.fillStyle="#9fc4af";c.font="22px 'Segoe UI',Arial,sans-serif";
   c.textAlign="center";c.fillText("III Torneo Soto del Barco · 2026",W/2,fy+46);
-  // Descargar
-  const link=document.createElement("a");
-  link.download="partidos-"+cur+".png";link.href=cv.toDataURL("image/png");link.click();
+  saveImage(cv,"partidos-"+cur+".png");
 }
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js").catch(function(){});
