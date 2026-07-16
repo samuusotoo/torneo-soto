@@ -18,11 +18,11 @@ function setEditable(){
   if(document.getElementById("ko-list")) renderKO();
   const kt=document.querySelector(".kotabs");
   if(kt){ if(canEdit()){ kt.style.display="flex"; } else { kt.style.display="none"; koView("bracket"); } }
-  const mode=document.getElementById("mode"), btn=document.getElementById("adminBtn"), reset=document.getElementById("resetBtn"), exp=document.getElementById("exportBtn"), share=document.getElementById("shareCardBtn"), shareAll=document.getElementById("shareAllGroupsBtn");
+  const mode=document.getElementById("mode"), btn=document.getElementById("adminBtn"), reset=document.getElementById("resetBtn"), exp=document.getElementById("exportBtn"), share=document.getElementById("shareCardBtn"), shareAll=document.getElementById("shareAllGroupsBtn"), shareBracket=document.getElementById("shareBracketBtn");
   const shareGs=document.querySelectorAll(".btn-share-group");
-  if(!ONLINE){ mode.textContent="📝 Edición local"; mode.className="mode admin"; if(btn)btn.style.display="none"; if(reset)reset.style.display="inline-block"; if(exp)exp.style.display="inline-block"; if(share)share.style.display="block"; if(shareAll)shareAll.style.display="block"; shareGs.forEach(b=>b.style.display="block"); return; }
-  if(isAdmin){ mode.textContent="✏️ Administrador"; mode.className="mode admin"; btn.textContent="🔓 Salir de administrador"; reset.style.display="inline-block"; exp.style.display="inline-block"; if(share)share.style.display="block"; if(shareAll)shareAll.style.display="block"; shareGs.forEach(b=>b.style.display="block"); }
-  else { mode.textContent="👁 Solo lectura"; mode.className="mode view"; btn.textContent="🔒 Entrar como administrador"; reset.style.display="none"; exp.style.display="none"; if(share)share.style.display="none"; if(shareAll)shareAll.style.display="none"; shareGs.forEach(b=>b.style.display="none"); }
+  if(!ONLINE){ mode.textContent="📝 Edición local"; mode.className="mode admin"; if(btn)btn.style.display="none"; if(reset)reset.style.display="inline-block"; if(exp)exp.style.display="inline-block"; if(share)share.style.display="block"; if(shareAll)shareAll.style.display="block"; if(shareBracket)shareBracket.style.display="block"; shareGs.forEach(b=>b.style.display="block"); return; }
+  if(isAdmin){ mode.textContent="✏️ Administrador"; mode.className="mode admin"; btn.textContent="🔓 Salir de administrador"; reset.style.display="inline-block"; exp.style.display="inline-block"; if(share)share.style.display="block"; if(shareAll)shareAll.style.display="block"; if(shareBracket)shareBracket.style.display="block"; shareGs.forEach(b=>b.style.display="block"); }
+  else { mode.textContent="👁 Solo lectura"; mode.className="mode view"; btn.textContent="🔒 Entrar como administrador"; reset.style.display="none"; exp.style.display="none"; if(share)share.style.display="none"; if(shareAll)shareAll.style.display="none"; if(shareBracket)shareBracket.style.display="none"; shareGs.forEach(b=>b.style.display="none"); }
 }
 function adminToggle(){
   if(!ONLINE||!AUTH) return;
@@ -760,6 +760,55 @@ function exportAllStandingsCard(){
   c.fillStyle="#9fc4af";c.font="20px 'Segoe UI',Arial,sans-serif";c.textAlign="center";
   c.fillText("III Torneo Soto del Barco · 2026",W/2,Y+42);
   const link=document.createElement("a");link.download="clasificaciones-grupos.png";link.href=cv.toDataURL("image/png");link.click();
+}
+function exportBracketCard(){
+  const W=1080,HDR=148,FOOT=55,PAD=22,BOXW=230,BOXH=58,PITCH=80,COLGAP=268,PADY=20;
+  const xO=PAD,xC=PAD+COLGAP,xS=PAD+2*COLGAP,xF=PAD+3*COLGAP;
+  const O=BRACKET.octavos,C=BRACKET.cuartos,S=BRACKET.semis,F=BRACKET.finales;
+  const cO=O.map((_,i)=>PADY+BOXH/2+i*PITCH);
+  const cC=C.map((_,k)=>(cO[2*k]+cO[2*k+1])/2);
+  const cS=S.map((_,k)=>(cC[2*k]+cC[2*k+1])/2);
+  const cF=(cS[0]+cS[1])/2,c34=cF+PITCH*1.7;
+  const BH=Math.max(cO[cO.length-1]+BOXH/2,c34+BOXH/2)+PADY;
+  const H=HDR+BH+FOOT;
+  const cv=document.createElement("canvas");cv.width=W;cv.height=H;
+  const c=cv.getContext("2d");
+  const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,"#0b3d24");bg.addColorStop(1,"#06301c");
+  c.fillStyle=bg;c.fillRect(0,0,W,H);
+  c.textAlign="center";
+  c.fillStyle="#fff";c.font="bold 48px 'Segoe UI',Arial,sans-serif";c.fillText("III TORNEO SOTO DEL BARCO",W/2,54);
+  c.fillStyle="#c8f7d8";c.font="26px 'Segoe UI',Arial,sans-serif";c.fillText("Fase Final · Cuadro de Eliminatorias",W/2,92);
+  c.fillStyle="rgba(255,255,255,.2)";c.fillRect(PAD,110,W-PAD*2,1);
+  c.font="bold 11px 'Segoe UI',Arial,sans-serif";c.fillStyle="rgba(255,255,255,.5)";c.textAlign="left";
+  [[xO,"OCTAVOS"],[xC,"CUARTOS"],[xS,"SEMIS"],[xF,"FINAL"]].forEach(([x,t])=>c.fillText(t,x,HDR-10));
+  const OY=HDR;
+  function rrect(x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+  function conn(x1,y1,x2,y2){const mx=(x1+x2)/2;c.strokeStyle="rgba(159,196,175,.45)";c.lineWidth=1.5;c.beginPath();c.moveTo(x1,OY+y1);c.lineTo(mx,OY+y1);c.lineTo(mx,OY+y2);c.lineTo(x2,OY+y2);c.stroke();}
+  C.forEach((_,k)=>{conn(xO+BOXW,cO[2*k],xC,cC[k]);conn(xO+BOXW,cO[2*k+1],xC,cC[k]);});
+  S.forEach((_,k)=>{conn(xC+BOXW,cC[2*k],xS,cS[k]);conn(xC+BOXW,cC[2*k+1],xS,cS[k]);});
+  conn(xS+BOXW,cS[0],xF,cF);conn(xS+BOXW,cS[1],xF,cF);
+  function clamp(txt,maxW,sz){c.font=sz+"px 'Segoe UI',Arial,sans-serif";if(c.measureText(txt).width<=maxW)return txt;while(c.measureText(txt+"…").width>maxW&&txt.length>1)txt=txt.slice(0,-1);return txt+"…";}
+  function drawBox(x,cy,m){
+    const b=koBox(m),top=OY+cy-BOXH/2,mid=OY+cy,rh=BOXH/2,SW=36,MAXN=BOXW-SW-18;
+    c.fillStyle="rgba(10,35,22,.8)";rrect(x,top,BOXW,BOXH,8);c.fill();
+    if(b.wa){c.fillStyle="rgba(22,163,74,.22)";rrect(x,top,BOXW,rh,8);c.fill();}
+    if(b.wb){c.fillStyle="rgba(22,163,74,.22)";rrect(x,mid,BOXW,rh,8);c.fill();}
+    c.strokeStyle="rgba(255,255,255,.08)";c.lineWidth=1;c.beginPath();c.moveTo(x,mid);c.lineTo(x+BOXW,mid);c.stroke();
+    c.strokeStyle="rgba(255,255,255,.14)";rrect(x,top,BOXW,BOXH,8);c.stroke();
+    c.font="bold 9px 'Segoe UI',Arial,sans-serif";c.textAlign="left";c.fillStyle="rgba(200,247,216,.65)";c.fillText(b.label,x,top-4);
+    const nA=clamp(b.a,MAXN,12);c.font=(b.wa?"bold ":"")+"13px 'Segoe UI',Arial,sans-serif";c.textAlign="left";c.fillStyle=b.wa?"#4ade80":"rgba(255,255,255,.78)";c.fillText(nA,x+7,top+rh/2+5);
+    c.font="bold 14px 'Segoe UI',Arial,sans-serif";c.textAlign="right";c.fillStyle=b.wa?"#4ade80":"rgba(255,255,255,.55)";c.fillText(b.sa,x+BOXW-6,top+rh/2+5);
+    const nB=clamp(b.b,MAXN,12);c.font=(b.wb?"bold ":"")+"13px 'Segoe UI',Arial,sans-serif";c.textAlign="left";c.fillStyle=b.wb?"#4ade80":"rgba(255,255,255,.78)";c.fillText(nB,x+7,mid+rh/2+5);
+    c.font="bold 14px 'Segoe UI',Arial,sans-serif";c.textAlign="right";c.fillStyle=b.wb?"#4ade80":"rgba(255,255,255,.55)";c.fillText(b.sb,x+BOXW-6,mid+rh/2+5);
+    if(MYTEAM&&(b.a===MYTEAM||b.b===MYTEAM)){c.strokeStyle="#f0b400";c.lineWidth=2.5;rrect(x,top,BOXW,BOXH,8);c.stroke();}
+  }
+  O.forEach((m,i)=>drawBox(xO,cO[i],m));
+  C.forEach((m,k)=>drawBox(xC,cC[k],m));
+  S.forEach((m,k)=>drawBox(xS,cS[k],m));
+  drawBox(xF,cF,F[1]);drawBox(xF,c34,F[0]);
+  c.fillStyle="rgba(255,255,255,.15)";c.fillRect(PAD,H-FOOT+8,W-PAD*2,1);
+  c.fillStyle="#9fc4af";c.font="20px 'Segoe UI',Arial,sans-serif";c.textAlign="center";c.fillText("III Torneo Soto del Barco · 2026",W/2,H-18);
+  const link=document.createElement("a");link.download="fase-final.png";link.href=cv.toDataURL("image/png");link.click();
 }
 function exportTodayCard(){
   const cur=activeDay();
