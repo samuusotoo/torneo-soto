@@ -30,6 +30,7 @@ tr+tr td{border-top:1px solid var(--line)}
 .qual .pos::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:4px;border-radius:0 3px 3px 0}
 .q .pos::before{background:#16a34a}.q{background:rgba(22,163,74,.07)}
 .q .team::after{content:"\2713";color:#16a34a;font-weight:800;margin-left:7px;font-size:12px}
+.pos-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:#16a34a;color:#fff;border-radius:50%;font-size:12px;font-weight:900}
 .match{display:flex;flex-direction:column;gap:4px;padding:9px 12px;border-top:1px solid var(--line)}
 .match:first-of-type{border-top:none}
 .time{font-size:11px;font-weight:700;color:var(--accentA);text-align:center;letter-spacing:.3px;min-height:13px}

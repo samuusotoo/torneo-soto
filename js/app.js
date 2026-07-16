@@ -128,10 +128,13 @@ function standings(g){
 }
 function renderStandings(g){
   const tb=document.getElementById("tb-"+g);if(!tb)return;
+  const sec=securedPositions(g);
   tb.innerHTML=standings(g).map((t,idx)=>{
     const qc=idx<QUALIFY[g]?"q":"";const dg=(t.dg>0?"+":"")+t.dg;
     const mine=(GROUPS[g][t.i]===MYTEAM)?" myteam":"";
-    return `<tr class="qual ${qc}${mine}"><td class="pos">${idx+1}</td><td class="team">${esc(GROUPS[g][t.i])}</td><td>${t.pj}</td><td>${t.g}</td><td>${t.e}</td><td>${t.p}</td><td>${t.gf}</td><td>${t.gc}</td><td>${dg}</td><td class="pts">${t.pts}</td></tr>`;
+    const sc=sec.has(t.i)?" sec":"";
+    const posCell=sec.has(t.i)?`<span class="pos-badge">${idx+1}</span>`:idx+1;
+    return `<tr class="qual ${qc}${mine}${sc}"><td class="pos">${posCell}</td><td class="team">${esc(GROUPS[g][t.i])}</td><td>${t.pj}</td><td>${t.g}</td><td>${t.e}</td><td>${t.p}</td><td>${t.gf}</td><td>${t.gc}</td><td>${dg}</td><td class="pts">${t.pts}</td></tr>`;
   }).join("");
 }
 function renderAllStandings(){Object.keys(GROUPS).forEach(renderStandings);}
@@ -148,6 +151,40 @@ function scoreText(g,h,a,key){
 }
 function ordinal(p){return p+"º";}
 function groupReady(g){const need=GROUPS[g].length*(GROUPS[g].length-1)/2;let c=0;const d=DATA[g]||{};for(const k in d)if(played(d[k]))c++;return c>=need;}
+function remainingMatchesCount(g,teamIdx){
+  let n=0;
+  schedule(GROUPS[g].length).forEach(round=>round.forEach(([h,a])=>{
+    if(h!==teamIdx&&a!==teamIdx)return;
+    if(!played((DATA[g]||{})[mid(h,a)]))n++;
+  }));
+  return n;
+}
+function headToHeadResult(g,a,b){
+  const key=mid(a,b),r=(DATA[g]||{})[key];
+  if(!played(r))return null;
+  const home=r.home,gh=+r.gh,ga=+r.ga;
+  const goalsA=home===a?gh:ga,goalsB=home===a?ga:gh;
+  if(goalsA>goalsB)return"a";if(goalsB>goalsA)return"b";return"draw";
+}
+function securedPositions(g){
+  const st=standings(g),sec=new Set();
+  st.forEach((team,pos)=>{
+    const mx=team.pts+3*remainingMatchesCount(g,team.i);
+    // ¿Puede este equipo alcanzar a alguno de los que están por encima?
+    for(let i=0;i<pos;i++){
+      if(mx>st[i].pts)return;
+      if(mx===st[i].pts&&headToHeadResult(g,team.i,st[i].i)!=="b")return;
+    }
+    // ¿Puede alguno de los que están por debajo alcanzarle?
+    for(let j=pos+1;j<st.length;j++){
+      const bmax=st[j].pts+3*remainingMatchesCount(g,st[j].i);
+      if(bmax>team.pts)return;
+      if(bmax===team.pts&&headToHeadResult(g,team.i,st[j].i)!=="a")return;
+    }
+    sec.add(team.i);
+  });
+  return sec;
+}
 function matchById(id){for(const r of ["octavos","cuartos","semis","finales"]){const m=BRACKET[r].find(x=>x.id===id);if(m)return m;}return null;}
 function koResult(id){
   const r=KO[id];if(!r)return {decided:false};
@@ -166,6 +203,8 @@ function koResult(id){
 function slotTeam(slot){
   if(slot.t==="g"){
     if(groupReady(slot.g)){const s=standings(slot.g);return {name:GROUPS[slot.g][s[slot.p-1].i],decided:true};}
+    const st=standings(slot.g);
+    if(st.length>=slot.p){const sec=securedPositions(slot.g),team=st[slot.p-1];if(sec.has(team.i))return {name:GROUPS[slot.g][team.i],decided:true};}
     return {name:ordinal(slot.p)+" Grupo "+slot.g,decided:false};
   }
   const res=koResult(slot.m);

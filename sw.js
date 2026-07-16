@@ -1,4 +1,4 @@
-const CACHE = 'torneo-soto-v11';
+﻿const CACHE = 'torneo-soto-v12';
 const STATIC = [
   './',
   './index.html',
