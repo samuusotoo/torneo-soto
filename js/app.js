@@ -18,11 +18,11 @@ function setEditable(){
   if(document.getElementById("ko-list")) renderKO();
   const kt=document.querySelector(".kotabs");
   if(kt){ if(canEdit()){ kt.style.display="flex"; } else { kt.style.display="none"; koView("bracket"); } }
-  const mode=document.getElementById("mode"), btn=document.getElementById("adminBtn"), reset=document.getElementById("resetBtn"), exp=document.getElementById("exportBtn"), share=document.getElementById("shareCardBtn"), shareAll=document.getElementById("shareAllGroupsBtn"), shareBracket=document.getElementById("shareBracketBtn");
+  const mode=document.getElementById("mode"), btn=document.getElementById("adminBtn"), exp=document.getElementById("exportBtn"), share=document.getElementById("shareCardBtn"), shareAll=document.getElementById("shareAllGroupsBtn"), shareBracket=document.getElementById("shareBracketBtn");
   const shareGs=document.querySelectorAll(".btn-share-group");
-  if(!ONLINE){ mode.textContent="📝 Edición local"; mode.className="mode admin"; if(btn)btn.style.display="none"; if(reset)reset.style.display="inline-block"; if(exp)exp.style.display="inline-block"; if(share)share.style.display="block"; if(shareAll)shareAll.style.display="block"; if(shareBracket)shareBracket.style.display="block"; shareGs.forEach(b=>b.style.display="block"); return; }
-  if(isAdmin){ mode.textContent="✏️ Administrador"; mode.className="mode admin"; btn.textContent="🔓 Salir de administrador"; reset.style.display="inline-block"; exp.style.display="inline-block"; if(share)share.style.display="block"; if(shareAll)shareAll.style.display="block"; if(shareBracket)shareBracket.style.display="block"; shareGs.forEach(b=>b.style.display="block"); }
-  else { mode.textContent="👁 Solo lectura"; mode.className="mode view"; btn.textContent="🔒 Entrar como administrador"; reset.style.display="none"; exp.style.display="none"; if(share)share.style.display="none"; if(shareAll)shareAll.style.display="none"; if(shareBracket)shareBracket.style.display="none"; shareGs.forEach(b=>b.style.display="none"); }
+  if(!ONLINE){ mode.textContent="📝 Edición local"; mode.className="mode admin"; if(btn)btn.style.display="none"; if(exp)exp.style.display="inline-block"; if(share)share.style.display="block"; if(shareAll)shareAll.style.display="block"; if(shareBracket)shareBracket.style.display="block"; shareGs.forEach(b=>b.style.display="block"); return; }
+  if(isAdmin){ mode.textContent="✏️ Administrador"; mode.className="mode admin"; btn.textContent="🔓 Salir de administrador"; exp.style.display="inline-block"; if(share)share.style.display="block"; if(shareAll)shareAll.style.display="block"; if(shareBracket)shareBracket.style.display="block"; shareGs.forEach(b=>b.style.display="block"); }
+  else { mode.textContent="👁 Solo lectura"; mode.className="mode view"; btn.textContent="🔒 Entrar como administrador"; exp.style.display="none"; if(share)share.style.display="none"; if(shareAll)shareAll.style.display="none"; if(shareBracket)shareBracket.style.display="none"; shareGs.forEach(b=>b.style.display="none"); }
 }
 function adminToggle(){
   if(!ONLINE||!AUTH) return;
@@ -610,18 +610,6 @@ function init(){
 function show(g){active=g;
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.id==="tab-"+g));
   document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id==="p-"+g));}
-function resetAll(){
-  if(ONLINE&&!isAdmin) return;
-  const m=document.getElementById("resetModal"); if(m) m.style.display="flex";
-}
-function closeResetModal(){
-  const m=document.getElementById("resetModal"); if(m) m.style.display="none";
-}
-function confirmReset(){
-  closeResetModal();
-  if(ONLINE){ dbRef.remove(); if(koRef) koRef.remove(); }
-  else { DATA={}; KO={}; localSave(); koSave(); applyInputs(); renderAllStandings(); renderKO(); renderToday(); }
-}
 function exportData(){
   const blob=new Blob([JSON.stringify(DATA,null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="resultados-soto-del-barco.json";a.click();
