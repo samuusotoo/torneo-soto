@@ -452,12 +452,12 @@ function koBox(m){
   const pena=(tie&&r.ph!=null&&r.ph!=="")?r.ph:"";
   const penb=(tie&&r.pa!=null&&r.pa!=="")?r.pa:"";
   const lbl=m.id==="FIN"?"FINAL":(m.id==="T34"?"3.º/4.º":m.id);
-  return {a:A.name,b:B.name,sa,sb,pena,penb,wa:res.decided&&res.winner==="a",wb:res.decided&&res.winner==="b",label:lbl+" · "+m.day+" "+m.hm};
+  const arb=ARBITROS[m.d?m.d.slice(0,10):""]||""; return {a:A.name,b:B.name,sa,sb,pena,penb,wa:res.decided&&res.winner==="a",wb:res.decided&&res.winner==="b",label:lbl+" · "+m.day+" "+m.hm,arb:arb==="Sin confirmar"?"":arb};
 }
 function renderBracket(){
   const host=document.getElementById("ko-bracket");if(!host)return;
   const O=BRACKET.octavos,C=BRACKET.cuartos,S=BRACKET.semis,F=BRACKET.finales;
-  const boxW=188,boxH=54,pitch=70,colGap=212,padX=12,padY=30;
+  const boxW=188,boxH=54,pitch=86,colGap=212,padX=12,padY=30;
   const xO=padX,xC=padX+colGap,xS=padX+2*colGap,xF=padX+3*colGap;
   const cO=O.map((_,i)=>padY+boxH/2+i*pitch);
   const cC=C.map((_,k)=>(cO[2*k]+cO[2*k+1])/2);
@@ -485,6 +485,7 @@ function renderBracket(){
     var scoreB=esc(b.sb); if(b.penb!=="") scoreB+=' <tspan font-size="10" fill="#15803d">('+esc(b.penb)+')</tspan>';
     s+=`<text x="${x+boxW-8}" y="${mid+18}" font-size="13" fill="#15321f" font-weight="800" text-anchor="end">${scoreB}</text>`;
     if(typeof MYTEAM!=="undefined"&&MYTEAM&&(b.a===MYTEAM||b.b===MYTEAM)) s+=`<rect x="${x}" y="${top}" width="${boxW}" height="${boxH}" rx="7" fill="none" stroke="#f0b400" stroke-width="3"/>`;
+    if(b.arb) s+=`<text x="${x}" y="${top+boxH+11}" font-size="10" fill="#9fc4af" font-style="italic">${esc("🧑‍⚖️ "+b.arb)}</text>`;
     s+=`</g>`;return s;
   }
   let bx="";
@@ -772,7 +773,7 @@ function exportAllStandingsCard(){
   saveImage(cv,"clasificaciones-grupos.png");
 }
 function exportBracketCard(){
-  const W=1080,HDR=148,FOOT=55,PAD=22,BOXW=230,BOXH=58,PITCH=80,COLGAP=268,PADY=20;
+  const W=1080,HDR=148,FOOT=55,PAD=22,BOXW=230,BOXH=58,PITCH=96,COLGAP=268,PADY=20;
   const xO=PAD,xC=PAD+COLGAP,xS=PAD+2*COLGAP,xF=PAD+3*COLGAP;
   const O=BRACKET.octavos,C=BRACKET.cuartos,S=BRACKET.semis,F=BRACKET.finales;
   const cO=O.map((_,i)=>PADY+BOXH/2+i*PITCH);
@@ -811,6 +812,7 @@ function exportBracketCard(){
     const nB=clamp(b.b,MAXN,12);c.font=(b.wb?"bold ":"")+"13px 'Segoe UI',Arial,sans-serif";c.textAlign="left";c.fillStyle=b.wb?"#4ade80":"rgba(255,255,255,.78)";c.fillText(nB,x+7,mid+rh/2+5);
     c.font="bold 14px 'Segoe UI',Arial,sans-serif";c.textAlign="right";c.fillStyle=b.wb?"#4ade80":"rgba(255,255,255,.55)";c.fillText(b.sb,x+BOXW-6,mid+rh/2+5);
     if(MYTEAM&&(b.a===MYTEAM||b.b===MYTEAM)){c.strokeStyle="#f0b400";c.lineWidth=2.5;rrect(x,top,BOXW,BOXH,8);c.stroke();}
+    if(b.arb){c.font="italic 11px 'Segoe UI',Arial,sans-serif";c.textAlign="left";c.fillStyle="#9fc4af";c.fillText("🧑‍⚖️ "+b.arb,x,top+BOXH+14);}
   }
   O.forEach((m,i)=>drawBox(xO,cO[i],m));
   C.forEach((m,k)=>drawBox(xC,cC[k],m));
