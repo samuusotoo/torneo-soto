@@ -103,11 +103,11 @@ window.TORNEO_DATA = {
     "2026-07-22": "Rodrigo López",
     "2026-07-23": "Adolfo García",
     "2026-07-24": "Óliver García",
-    "2026-07-27": "Sin confirmar",
-    "2026-07-28": "Sin confirmar",
-    "2026-07-29": "Sin confirmar",
-    "2026-07-30": "Sin confirmar",
-    "2026-07-31": "Sin confirmar"
+    "2026-07-27": "Aimar Pérez",
+    "2026-07-28": "Daniel Díaz-Faes / Miguel Sánchez",
+    "2026-07-29": "Rodrigo López / Jesús Granados",
+    "2026-07-30": "Alejandro Fernández / Miguel Sánchez",
+    "2026-07-31": "Jesús Granados / Rodrigo López"
   },
   "palmares": [
     {"ed":"III","year":2026,"live":true},
