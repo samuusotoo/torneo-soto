@@ -70,7 +70,7 @@ function initStorage(){
       koRef.on("value",snap=>{ KO=snap.val()||{}; renderKO(); renderBracket(); renderToday(); });
       horariosRef=firebase.database().ref("horarios");
       horariosRef.on("value",snap=>{ HORARIOS=snap.val()||{}; applyInputs(); renderToday(); });
-      dbRef.on("value",snap=>{ DATA=snap.val()||{}; applyInputs(); renderAllStandings(); renderBracket(); renderToday(); setConn("● compartido en directo","on"); },
+      dbRef.on("value",snap=>{ DATA=snap.val()||{}; applyInputs(); renderAllStandings(); renderBracket(); renderKO(); renderToday(); setConn("● compartido en directo","on"); },
         err=>{ setConn("error de conexión","off"); console.error(err); });
       firebase.database().ref(".info/connected").on("value",s=>{ setConn(s.val()===true?"● compartido en directo":"sin conexión…", s.val()===true?"on":"off"); });
     }catch(e){ console.error(e); fallbackLocal(); }
