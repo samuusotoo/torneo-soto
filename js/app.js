@@ -223,8 +223,12 @@ function bannerItems(){
   });
   ["octavos","cuartos","semis","finales"].forEach(r=>BRACKET[r].forEach(m=>{
     const A=slotTeam(m.a),B=slotTeam(m.b),res=KO[m.id]||{};
-    let sc=null; if(res.gh!==""&&res.ga!==""&&res.gh!=null&&res.ga!=null) sc=res.gh+" - "+res.ga;
-    out.push({d:m.d,hm:m.hm,day:m.day,accent:"#d4a017",badge:"★",n1:A.name,n2:B.name,score:sc});
+    let sc=null,pen=null;
+    if(res.gh!==""&&res.ga!==""&&res.gh!=null&&res.ga!=null){
+      sc=res.gh+" - "+res.ga;
+      if(+res.gh===+res.ga&&res.ph!=null&&res.ph!==""&&res.pa!=null&&res.pa!=="") pen=res.ph+"-"+res.pa;
+    }
+    out.push({d:m.d,hm:m.hm,day:m.day,accent:"#d4a017",badge:"★",n1:A.name,n2:B.name,score:sc,pen});
   }));
   return out;
 }
@@ -879,8 +883,9 @@ function exportTodayCard(){
     const sx=PAD+LEFT+TEAMW+10+SCOREW/2;
     c.textAlign="center";
     if(m.score){
-      c.fillStyle="#fff";rrect(sx-SCOREW/2,y+rh/2-22,SCOREW,44,8);c.fill();
-      c.fillStyle="#0a3320";c.font="bold 28px 'Segoe UI',Arial,sans-serif";c.fillText(m.score,sx,y+rh/2+10);
+      c.fillStyle="#fff";rrect(sx-SCOREW/2,y+rh/2-22,SCOREW,44+(m.pen?14:0),8);c.fill();
+      c.fillStyle="#0a3320";c.font="bold "+(m.pen?"22":"28")+"px 'Segoe UI',Arial,sans-serif";c.fillText(m.score,sx,y+rh/2+(m.pen?2:10));
+      if(m.pen){c.fillStyle="#15803d";c.font="bold 14px 'Segoe UI',Arial,sans-serif";c.fillText("("+m.pen+" p.)",sx,y+rh/2+20);}
     }else{
       c.fillStyle="rgba(200,247,216,.7)";c.font="bold 22px 'Segoe UI',Arial,sans-serif";c.fillText("vs",sx,y+rh/2+8);
     }
